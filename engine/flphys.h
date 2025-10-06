@@ -46,10 +46,6 @@ FLPHYS_EXPORT double pobj_get_mass(const struct pobj *pobj);
 FLPHYS_EXPORT void pobj_set_mass(struct pobj *pobj, double mass);
 FLPHYS_EXPORT double pobj_get_radius(const struct pobj *pobj);
 FLPHYS_EXPORT void pobj_set_radius(struct pobj *obj, double radius);
-FLPHYS_EXPORT double pobj_get_area(const struct pobj *pobj);
-FLPHYS_EXPORT void pobj_set_area(struct pobj *obj, double area);
-FLPHYS_EXPORT double pobj_get_volume(const struct pobj *pobj);
-FLPHYS_EXPORT void pobj_set_volume(struct pobj *obj, double volume);
 
 // Phys
 struct phys;

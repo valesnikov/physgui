@@ -70,18 +70,6 @@ namespace physgui
         public static partial void pobj_set_radius(IntPtr pobj, double radius);
 
         [LibraryImport(LibraryName)]
-        public static partial double pobj_get_area(IntPtr pobj);
-
-        [LibraryImport(LibraryName)]
-        public static partial void pobj_set_area(IntPtr pobj, double area);
-
-        [LibraryImport(LibraryName)]
-        public static partial double pobj_get_volume(IntPtr pobj);
-
-        [LibraryImport(LibraryName)]
-        public static partial void pobj_set_volume(IntPtr pobj, double volume);
-
-        [LibraryImport(LibraryName)]
         public static partial void pvec_set_scs(IntPtr pvec, double len, double angle);
 
         [LibraryImport(LibraryName)]
@@ -152,24 +140,12 @@ namespace physgui
             set => LibFlPhys.pobj_set_mass(_nativePtr, value);
         }
 
-        public double Radius => LibFlPhys.pobj_get_radius(_nativePtr);
-        public double Area => LibFlPhys.pobj_get_area(_nativePtr);
-        public double Volume => LibFlPhys.pobj_get_volume(_nativePtr);
-
-        public void SetRadius(double radius)
+        public double Radius
         {
-            LibFlPhys.pobj_set_radius(_nativePtr, radius);
+            get => LibFlPhys.pobj_get_radius(_nativePtr);
+            set => LibFlPhys.pobj_set_radius(_nativePtr, value);
         }
 
-        public void SetArea(double area)
-        {
-            LibFlPhys.pobj_set_area(_nativePtr, area);
-        }
-
-        public void SetVolume(double volume)
-        {
-            LibFlPhys.pobj_set_volume(_nativePtr, volume);
-        }
     }
 
 
@@ -209,7 +185,7 @@ namespace physgui
             var objPtr = LibFlPhys.phys_ref_object(_nativePtr, id);
             if (objPtr == IntPtr.Zero)
                 throw new ArgumentException($"Object with id {id} not exist");
-            
+
             return new PhysicalObject(objPtr);
         }
 

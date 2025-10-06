@@ -82,30 +82,10 @@ double pobj_get_radius(const struct pobj *pobj) {
     return pobj->radius;
 }
 
-double pobj_get_area(const struct pobj *pobj) {
-    return pobj->area;
-}
-
-double pobj_get_volume(const struct pobj *pobj) {
-    return pobj->volume;
-}
-
 void pobj_set_radius(struct pobj *obj, double radius) {
     obj->radius = radius;
     obj->area = PHYS_PI * radius * radius;
     obj->volume = (4.0 / 3.0) * PHYS_PI * radius * radius * radius;
-}
-
-void pobj_set_area(struct pobj *obj, double area) {
-    obj->radius = sqrt(area / PHYS_PI);
-    obj->area = area;
-    obj->volume = area * (4.0 / 3.0) * obj->radius;
-}
-
-void pobj_set_volume(struct pobj *obj, double volume) {
-    obj->radius = pow(volume * 3.0 / (4.0 * PHYS_PI), 1.0 / 3.0);
-    obj->area = PHYS_PI * obj->radius * obj->radius;
-    obj->volume = volume;
 }
 
 static int pobj_run(struct pobj *obj, double time) {
