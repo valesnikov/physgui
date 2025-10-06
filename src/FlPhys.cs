@@ -28,6 +28,9 @@ namespace physgui
         public static partial IntPtr phys_create(uint objects_num);
 
         [LibraryImport(LibraryName)]
+        public static partial int phys_run(IntPtr phys, double step_time, uint steps);
+
+        [LibraryImport(LibraryName)]
         public static partial double phys_get_density(IntPtr phys);
 
         [LibraryImport(LibraryName)]
@@ -43,7 +46,7 @@ namespace physgui
         public static partial IntPtr phys_ref_object(IntPtr phys, uint id);
 
         [LibraryImport(LibraryName)]
-        public static partial int phys_get_objects_num(IntPtr phys);
+        public static partial uint phys_get_objects_num(IntPtr phys);
 
         [LibraryImport(LibraryName)]
         public static partial double phys_get_time(IntPtr phys);
@@ -189,7 +192,7 @@ namespace physgui
             return new PhysicalObject(objPtr);
         }
 
-        public int ObjectsCount => LibFlPhys.phys_get_objects_num(_nativePtr);
+        public uint ObjectsCount => LibFlPhys.phys_get_objects_num(_nativePtr);
 
         public bool IsGravityEnabled
         {
@@ -198,6 +201,11 @@ namespace physgui
         }
 
         public double Time => LibFlPhys.phys_get_time(_nativePtr);
+
+        public int Run(double step_time, uint steps)
+        {
+            return LibFlPhys.phys_run(_nativePtr, step_time, steps);
+        }
 
         public void Dispose()
         {

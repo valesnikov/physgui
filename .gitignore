@@ -3,4 +3,6 @@ engine/.cache
 engine/.vscode
 bin/
 obj/
+tests/bin/
+tests/obj/
 .vscode/

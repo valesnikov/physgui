@@ -12,5 +12,7 @@ engine:
 clean:
 	rm -rf obj
 	rm -rf bin
+	rm -rf tests/obj
+	rm -rf tests/bin
 	rm -rf engine/build
 	rm -rf engine/.cache
