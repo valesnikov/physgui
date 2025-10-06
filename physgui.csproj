@@ -4,11 +4,16 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="**\*.glade" />
-    <EmbeddedResource Include="**\*.glade">
+    <Compile Include="src\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="src\**\*.glade" />
+    <EmbeddedResource Include="src\**\*.glade">
       <LogicalName>%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
@@ -16,5 +21,4 @@
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.*" />
   </ItemGroup>
-
 </Project>

@@ -3,3 +3,4 @@ engine/.cache
 engine/.vscode
 bin/
 obj/
+.vscode/
