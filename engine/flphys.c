@@ -150,7 +150,7 @@ double phys_get_time(const struct phys *phys) {
     return phys->time;
 }
 
-static int compute_object_force(const struct phys *phys, struct pobj *obj) {
+static void compute_object_force(const struct phys *phys, struct pobj *obj) {
     obj->force = (struct pvec){0};
 
     const struct pvec relative_mov = {
@@ -172,29 +172,32 @@ static int compute_object_force(const struct phys *phys, struct pobj *obj) {
     const double relative_mass = obj->mass - (obj->volume * phys->density); // maybe negative
     obj->force.x += phys->accel_of_gravity.x * relative_mass;
     obj->force.y += phys->accel_of_gravity.y * relative_mass;
+}
 
-    if (phys->is_gravity && phys->objects_num > 1) {
-        for (unsigned int i = 0; i < phys->objects_num; i++) {
-            const struct pobj *other_obj = phys->objects + i;
-            if (other_obj != obj) {
+static int compute_gravity(struct phys *phys) {
+    for (unsigned int i = 0; i < phys->objects_num - 1; i++) {
+        for (unsigned int j = i + 1; j < phys->objects_num; j++) {
+            struct pobj *a = &phys->objects[i];
+            struct pobj *b = &phys->objects[j];
 
-                const struct pvec dist = {
-                    .x = obj->pos.x - other_obj->pos.x,
-                    .y = obj->pos.y - other_obj->pos.y,
-                };
+            const struct pvec dist = {
+                .x = a->pos.x - b->pos.x,
+                .y = a->pos.y - b->pos.y,
+            };
 
-                const double dist_len = pvec_get_len(&dist);
-                if (dist_len == 0) {
-                    return PHYS_RES_ERR_ZERO_DIST;
-                }
-                const double gravy_f = relative_mass *
-                                       (other_obj->mass - (other_obj->volume * phys->density)) *
-                                       PHYS_G / (dist_len * dist_len);
-
-                const double k = gravy_f / dist_len;
-                obj->force.x -= dist.x * k;
-                obj->force.y -= dist.y * k;
+            const double dist_len = pvec_get_len(&dist);
+            if (dist_len == 0) {
+                return PHYS_RES_ERR_ZERO_DIST;
             }
+
+            const double gravy_f = a->mass * b->mass * PHYS_G / (dist_len * dist_len);
+
+            const double k = gravy_f / dist_len;
+
+            a->force.x -= dist.x * k;
+            a->force.y -= dist.y * k;
+            b->force.x += dist.x * k;
+            b->force.y += dist.y * k;
         }
     }
     return PHYS_RES_OK;
@@ -209,7 +212,10 @@ int phys_run(struct phys *phys, double step_time, unsigned int steps) {
 
     while (counter++ < steps) {
         for (unsigned int i = 0; i < phys->objects_num; i++) {
-            err = compute_object_force(phys, phys->objects + i);
+            compute_object_force(phys, phys->objects + i);
+        }
+        if (phys->is_gravity && phys->objects_num > 1) {
+            err = compute_gravity(phys);
             if (err != PHYS_RES_OK)
                 return err;
         }

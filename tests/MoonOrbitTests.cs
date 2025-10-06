@@ -42,24 +42,22 @@ public class MoonOrbitTests
         var res = phys.Run(ACCURACY, steps);
         Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
-        Assert.True(distance(rock.Position, MOON_RADIUS + HEIGHT, 0) <= 100);
+        Assert.True(distance(rock.Position, MOON_RADIUS + HEIGHT, 0) <= 12);
 
         res = phys.Run(ACCURACY, steps);
         Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
-        Assert.True(distance(rock.Position, 0, -(MOON_RADIUS + HEIGHT)) <= 100);
+        Assert.True(distance(rock.Position, 0, -(MOON_RADIUS + HEIGHT)) <= 25);
 
         res = phys.Run(ACCURACY, steps);
         Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
-        Assert.True(distance(rock.Position, -(MOON_RADIUS + HEIGHT), 0) <= 100);
+        Assert.True(distance(rock.Position, -(MOON_RADIUS + HEIGHT), 0) <= 50);
 
         res = phys.Run(ACCURACY, steps);
         Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, 0, MOON_RADIUS + HEIGHT) <= 100);
-
-        Console.WriteLine($"{distance(rock.Position, 0, MOON_RADIUS + HEIGHT)}");
     }
 }
 
