@@ -1,6 +1,7 @@
 #include "flphys.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 const char *phys_strerror(int result) {
     switch (result) {
@@ -128,23 +129,20 @@ struct phys {
     double density;               // ambient air density kg/m^3
     struct pvec accel_of_gravity; // constant acceleration acting on all objects m/s^2
     struct pvec wind;             // ambien wind m/s
-    int is_gravity;              // inter-object gravity flag
+    int is_gravity;               // inter-object gravity flag
     double time;                  // total simulation time
-    struct pobj *objects;         // pointer to objects array
     unsigned int objects_num;     // number of objects in array
+    struct pobj objects[];        // objects array
 };
 
 struct phys *phys_create(unsigned int objects_num) {
-    struct phys *phys = calloc(1, sizeof(struct phys));
+    const size_t size = sizeof(struct phys) + objects_num * sizeof(struct pobj);
+    struct phys *phys = malloc(size);
+    memset(phys, 0, size);
     if (phys != NULL) {
         phys->density = 0;
         phys->accel_of_gravity = (struct pvec){.x = 0, .y = 0};
         phys->wind = (struct pvec){.x = 0, .y = 0};
-        phys->objects = calloc(objects_num, sizeof(struct pobj));
-        if (objects_num > 0 && phys->objects == NULL) {
-            free(phys);
-            return NULL;
-        }
         phys->objects_num = objects_num;
         phys->is_gravity = false;
         phys->time = 0;
@@ -153,7 +151,6 @@ struct phys *phys_create(unsigned int objects_num) {
 }
 
 void phys_destroy(struct phys *phys) {
-    free(phys->objects);
     free(phys);
 }
 
@@ -250,8 +247,6 @@ static int compute_objects_force(const struct phys *phys, struct pobj *obj) {
 int phys_run(struct phys *phys, double step_time, unsigned int steps) {
     if (phys->objects_num == 0)
         return PHYS_RES_OK;
-    if (phys->objects == NULL)
-        return PHYS_RES_ERR_NULL_PTR;
 
     unsigned int counter = 0;
     int err;
