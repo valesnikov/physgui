@@ -95,8 +95,8 @@ static int pobj_run(struct pobj *obj, double time) {
 struct phys *phys_create(unsigned int objects_num) {
     const size_t size = sizeof(struct phys) + objects_num * sizeof(struct pobj);
     struct phys *phys = malloc(size);
-    memset(phys, 0, size);
     if (phys != NULL) {
+        memset(phys, 0, size);
         phys->density = 0;
         phys->accel_of_gravity = (struct pvec){.x = 0, .y = 0};
         phys->wind = (struct pvec){.x = 0, .y = 0};
