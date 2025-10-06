@@ -1,4 +1,6 @@
 #include "flphys.h"
+#include "types.h"
+
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,11 +19,6 @@ const char *phys_strerror(int result) {
         return "Unknown error code";
     }
 }
-
-struct pvec {
-    double x; // m | m/s | N
-    double y; // m | m/s | N
-};
 
 void pvec_set_scs(struct pvec *pvec, double len, double angle) {
     pvec->x = len * cos(angle);
@@ -51,16 +48,6 @@ double pvec_get_len(const struct pvec *pvec) {
 double pvec_get_angle(const struct pvec *pvec) {
     return atan2(pvec->y, pvec->x);
 }
-
-struct pobj {
-    struct pvec pos;   // m
-    struct pvec mov;   // m/s
-    double mass;       // kg
-    double radius;     // m
-    double area;       // m^2
-    double volume;     // m^3
-    struct pvec force; // N
-};
 
 struct pvec *pobj_ref_pos(struct pobj *pobj) {
     return &pobj->pos;
@@ -104,16 +91,6 @@ static int pobj_run(struct pobj *obj, double time) {
     obj->mov.y += acceleration.y * time;
     return PHYS_RES_OK;
 }
-
-struct phys {
-    double density;               // ambient air density kg/m^3
-    struct pvec accel_of_gravity; // constant acceleration acting on all objects m/s^2
-    struct pvec wind;             // ambien wind m/s
-    int is_gravity;               // inter-object gravity flag
-    double time;                  // total simulation time
-    unsigned int objects_num;     // number of objects in array
-    struct pobj objects[];        // objects array
-};
 
 struct phys *phys_create(unsigned int objects_num) {
     const size_t size = sizeof(struct phys) + objects_num * sizeof(struct pobj);
