@@ -55,12 +55,12 @@ namespace physgui
             {
                 node.Add("acceleration", showVector(phys.AccelerationOfGravity));
             }
-            if (phys.ObjectsCount > 0)
+            if (phys.Objects.Count > 0)
             {
                 var seq = new YamlSequenceNode { };
-                for (uint i = 0; i < phys.ObjectsCount; i++)
+                foreach (var obj in phys.Objects)
                 {
-                    seq.Add(showObject(phys.GetObject(i)));
+                    seq.Add(showObject(obj));
                 }
                 node.Add("objects", seq);
             }

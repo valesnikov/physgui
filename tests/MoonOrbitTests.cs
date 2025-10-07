@@ -25,11 +25,11 @@ public class MoonOrbitTests
         using var phys = new physgui.PhysicsSystem(2);
         phys.IsGravityEnabled = true;
 
-        var moon = phys.GetObject(0);
+        var moon = phys.Objects[0];
         moon.Mass = MOON_MASS;
         moon.Radius = MOON_RADIUS;
 
-        var rock = phys.GetObject(1);
+        var rock = phys.Objects[1];
         rock.Mass = 1;
         rock.Radius = 0.03;
         rock.Position.Y = MOON_RADIUS + HEIGHT;

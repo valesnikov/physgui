@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace physgui
@@ -183,16 +185,49 @@ namespace physgui
         public Vector AccelerationOfGravity => new Vector(LibFlPhys.phys_ref_accel_of_gravity(_nativePtr));
         public Vector Wind => new Vector(LibFlPhys.phys_ref_wind(_nativePtr));
 
-        public PhysicalObject GetObject(uint id)
-        {
-            var objPtr = LibFlPhys.phys_ref_object(_nativePtr, id);
-            if (objPtr == IntPtr.Zero)
-                throw new ArgumentException($"Object with id {id} not exist");
 
-            return new PhysicalObject(objPtr);
+        private class ObjectList : IReadOnlyList<PhysicalObject>
+        {
+            private IntPtr _nativePtr;
+
+            public ObjectList(IntPtr nativePtr)
+            {
+                _nativePtr = nativePtr;
+            }
+
+            public PhysicalObject this[int index]
+            {
+                get
+                {
+                    if (index < 0)
+                        throw new IndexOutOfRangeException($"Index cannot be negative: {index}");
+
+                    IntPtr objPtr = LibFlPhys.phys_ref_object(_nativePtr, (uint)index);
+                    if (objPtr == IntPtr.Zero)
+                        throw new IndexOutOfRangeException($"PhysicalObject at index {index} not exist");
+
+                    return new PhysicalObject(objPtr);
+                }
+            }
+
+            public int Count => (int)LibFlPhys.phys_get_objects_num(_nativePtr);
+
+            public IEnumerator<PhysicalObject> GetEnumerator()
+            {
+                var count = Count;
+                for (int i = 0; i < count; i++)
+                {
+                    yield return this[i];
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
         }
 
-        public uint ObjectsCount => LibFlPhys.phys_get_objects_num(_nativePtr);
+        public IReadOnlyList<PhysicalObject> Objects => new ObjectList(_nativePtr);
 
         public bool IsGravityEnabled
         {
