@@ -13,11 +13,6 @@ project(
 
 add_library(${PROJECT_NAME} SHARED)
 
-if(WIN32)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE FLPHYS_SHARED)
-endif()
-
-
 target_sources(${PROJECT_NAME} PRIVATE
     flphys.c
 )
@@ -26,13 +21,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Set library version
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION 1
 )
 
-# Basic installation
 install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

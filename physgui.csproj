@@ -20,5 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="GtkSharp" Version="3.24.24.*" />
+    <PackageReference Include="YamlDotNet" Version="16.3.*" />
   </ItemGroup>
 </Project>

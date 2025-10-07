@@ -22,7 +22,7 @@ public class MoonOrbitTests
     [Fact]
     public void test()
     {
-        var phys = new physgui.PhysicsSystem(2);
+        using var phys = new physgui.PhysicsSystem(2);
         phys.IsGravityEnabled = true;
 
         var moon = phys.GetObject(0);

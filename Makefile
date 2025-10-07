@@ -13,7 +13,9 @@ publish:
 	dotnet publish physgui.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true -o ./publish
 
 engine:
-	cd engine && cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr --fresh && cmake --build build && sudo cmake --install build
+	cmake -B engine/build -S engine -DCMAKE_C_FLAGS="-ffast-math" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr --fresh
+	cmake --build engine/build
+	sudo cmake --install engine/build
 
 clean:
 	rm -rf obj
