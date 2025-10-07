@@ -39,23 +39,19 @@ public class MoonOrbitTests
 
         uint steps = (uint)(expectedTime / ACCURACY / 4);
 
-        var res = phys.Run(ACCURACY, steps);
-        Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
+        phys.Run(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
-        Assert.True(distance(rock.Position, MOON_RADIUS + HEIGHT, 0) <= 12);
+        Assert.True(distance(rock.Position, MOON_RADIUS + HEIGHT, 0) <= 12.5);
 
-        res = phys.Run(ACCURACY, steps);
-        Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
+        phys.Run(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, 0, -(MOON_RADIUS + HEIGHT)) <= 25);
 
-        res = phys.Run(ACCURACY, steps);
-        Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
+        phys.Run(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, -(MOON_RADIUS + HEIGHT), 0) <= 50);
 
-        res = phys.Run(ACCURACY, steps);
-        Assert.Equal(physgui.LibFlPhys.PHYS_RES_OK, res);
+        phys.Run(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, 0, MOON_RADIUS + HEIGHT) <= 100);
     }

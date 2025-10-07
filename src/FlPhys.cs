@@ -153,17 +153,22 @@ namespace physgui
 
     }
 
-
-
-    public static class PhysError
+    public class PhysException : Exception
     {
-        public static string GetString(int result)
+        public PhysException(int errorCode)
+            : base(GetErrorString(errorCode))
+        {
+            ErrorCode = errorCode;
+        }
+
+        public int ErrorCode { get; }
+
+        private static string GetErrorString(int result)
         {
             var ptr = LibFlPhys.phys_strerror(result);
             return Marshal.PtrToStringUTF8(ptr) ?? $"Unknown error code: {result}";
         }
     }
-
 
     public class PhysicsSystem : IDisposable
     {
@@ -237,9 +242,13 @@ namespace physgui
 
         public double Time => LibFlPhys.phys_get_time(_nativePtr);
 
-        public int Run(double step_time, uint steps)
+        public void Run(double step_time, uint steps)
         {
-            return LibFlPhys.phys_run(_nativePtr, step_time, steps);
+            var res = LibFlPhys.phys_run(_nativePtr, step_time, steps);
+            if (res != LibFlPhys.PHYS_RES_OK)
+            {
+                throw new PhysException(res);
+            }
         }
 
         public void Dispose()
