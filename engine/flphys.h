@@ -49,17 +49,17 @@ FLPHYS_EXPORT void pobj_set_radius(struct pobj *obj, double radius);
 
 // Phys
 struct phys;
-FLPHYS_EXPORT /*maybe null*/ struct phys *phys_create(unsigned int objects_num);
+FLPHYS_EXPORT /*maybe null*/ struct phys *phys_create(int objects_num);
 FLPHYS_EXPORT double phys_get_density(const struct phys *phys);
 FLPHYS_EXPORT void phys_set_density(struct phys *phys, double density);
 FLPHYS_EXPORT struct pvec *phys_ref_accel_of_gravity(struct phys *phys);
 FLPHYS_EXPORT struct pvec *phys_ref_wind(struct phys *phys);
-FLPHYS_EXPORT /*maybe null*/ struct pobj *phys_ref_object(struct phys *phys, unsigned int id);
-FLPHYS_EXPORT unsigned int phys_get_objects_num(const struct phys *phys);
+FLPHYS_EXPORT /*maybe null*/ struct pobj *phys_ref_object(struct phys *phys, int id);
+FLPHYS_EXPORT int phys_get_objects_num(const struct phys *phys);
 FLPHYS_EXPORT int phys_get_is_gravity(const struct phys *phys);
 FLPHYS_EXPORT void phys_set_is_gravity(struct phys *phys, int is_gravity);
 FLPHYS_EXPORT double phys_get_time(const struct phys *phys);
-FLPHYS_EXPORT int phys_run(struct phys *phys, double step_time, unsigned int steps);
+FLPHYS_EXPORT int phys_run(struct phys *phys, double step_time, int steps);
 FLPHYS_EXPORT void phys_destroy(struct phys *phys);
 
 #ifdef __cplusplus

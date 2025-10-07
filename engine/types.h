@@ -22,7 +22,7 @@ struct phys {
     struct pvec wind;             // ambien wind m/s
     int is_gravity;               // inter-object gravity flag
     double time;                  // total simulation time
-    unsigned int objects_num;     // number of objects in array
+    int objects_num;              // number of objects in array
     struct pobj objects[];        // objects array
 };
 

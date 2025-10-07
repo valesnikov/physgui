@@ -27,10 +27,10 @@ namespace physgui
         public static partial void phys_set_is_gravity(IntPtr phys, int isGravity);
 
         [LibraryImport(LibraryName)]
-        public static partial IntPtr phys_create(uint objects_num);
+        public static partial IntPtr phys_create(int objects_num);
 
         [LibraryImport(LibraryName)]
-        public static partial int phys_run(IntPtr phys, double step_time, uint steps);
+        public static partial int phys_run(IntPtr phys, double step_time, int steps);
 
         [LibraryImport(LibraryName)]
         public static partial double phys_get_density(IntPtr phys);
@@ -45,10 +45,10 @@ namespace physgui
         public static partial IntPtr phys_ref_wind(IntPtr phys);
 
         [LibraryImport(LibraryName)]
-        public static partial IntPtr phys_ref_object(IntPtr phys, uint id);
+        public static partial IntPtr phys_ref_object(IntPtr phys, int id);
 
         [LibraryImport(LibraryName)]
-        public static partial uint phys_get_objects_num(IntPtr phys);
+        public static partial int phys_get_objects_num(IntPtr phys);
 
         [LibraryImport(LibraryName)]
         public static partial double phys_get_time(IntPtr phys);
@@ -174,7 +174,7 @@ namespace physgui
     {
         private IntPtr _nativePtr;
 
-        public PhysicsSystem(uint objects_num)
+        public PhysicsSystem(int objects_num)
         {
             _nativePtr = LibFlPhys.phys_create(objects_num);
             if (_nativePtr == IntPtr.Zero)
@@ -204,18 +204,13 @@ namespace physgui
             {
                 get
                 {
-                    if (index < 0)
-                        throw new IndexOutOfRangeException($"Index cannot be negative: {index}");
-
-                    IntPtr objPtr = LibFlPhys.phys_ref_object(_nativePtr, (uint)index);
-                    if (objPtr == IntPtr.Zero)
-                        throw new IndexOutOfRangeException($"PhysicalObject at index {index} not exist");
-
-                    return new PhysicalObject(objPtr);
+                    if (index < 0 || index >= Count)
+                        throw new IndexOutOfRangeException($"Index '{index}' out of range [0, {Count})");
+                    return new PhysicalObject(LibFlPhys.phys_ref_object(_nativePtr, index));
                 }
             }
 
-            public int Count => (int)LibFlPhys.phys_get_objects_num(_nativePtr);
+            public int Count => LibFlPhys.phys_get_objects_num(_nativePtr);
 
             public IEnumerator<PhysicalObject> GetEnumerator()
             {
@@ -242,7 +237,7 @@ namespace physgui
 
         public double Time => LibFlPhys.phys_get_time(_nativePtr);
 
-        public void Run(double step_time, uint steps)
+        public void Run(double step_time, int steps)
         {
             var res = LibFlPhys.phys_run(_nativePtr, step_time, steps);
             if (res != LibFlPhys.PHYS_RES_OK)

@@ -79,7 +79,8 @@ static int pobj_run(struct pobj *obj, double time) {
     if (obj->mass == 0) {
         return PHYS_RES_ERR_ZERO_MASS;
     }
-    struct pvec acceleration = {
+
+    const struct pvec acceleration = {
         .x = obj->force.x / obj->mass,
         .y = obj->force.y / obj->mass,
     };
@@ -92,7 +93,7 @@ static int pobj_run(struct pobj *obj, double time) {
     return PHYS_RES_OK;
 }
 
-struct phys *phys_create(unsigned int objects_num) {
+struct phys *phys_create(int objects_num) {
     const size_t size = sizeof(struct phys) + objects_num * sizeof(struct pobj);
     struct phys *phys = malloc(size);
     if (phys != NULL) {
@@ -127,14 +128,11 @@ struct pvec *phys_ref_wind(struct phys *phys) {
     return &phys->wind;
 }
 
-struct pobj *phys_ref_object(struct phys *phys, unsigned int id) {
-    if (id >= phys->objects_num) {
-        return NULL;
-    }
+struct pobj *phys_ref_object(struct phys *phys, int id) {
     return &phys->objects[id];
 }
 
-unsigned int phys_get_objects_num(const struct phys *phys) {
+int phys_get_objects_num(const struct phys *phys) {
     return phys->objects_num;
 }
 
@@ -151,32 +149,34 @@ double phys_get_time(const struct phys *phys) {
 }
 
 static void compute_object_force(const struct phys *phys, struct pobj *obj) {
-    obj->force = (struct pvec){0};
+    obj->force.x = phys->accel_of_gravity.x * obj->mass;
+    obj->force.y = phys->accel_of_gravity.y * obj->mass;
 
-    const struct pvec relative_mov = {
-        obj->mov.x - phys->wind.x,
-        obj->mov.y - phys->wind.y,
-    };
+    if (phys->density > 0) {
+        const struct pvec relative_mov = {
+            obj->mov.x - phys->wind.x,
+            obj->mov.y - phys->wind.y,
+        };
 
-    const double relative_speed = pvec_get_len(&relative_mov);
+        const double relative_speed = pvec_get_len(&relative_mov);
 
-    if (phys->density != 0 && relative_speed != 0) {
-        const double air_f =
-            obj->area * phys->density * relative_speed * relative_speed * 0.5 * PHYS_BALL_DRAG_COEF;
+        if (phys->density != 0 && relative_speed != 0) {
+            const double air_f = obj->area * phys->density * relative_speed * relative_speed * 0.5 *
+                                 PHYS_BALL_DRAG_COEF;
 
-        const double k = air_f / relative_speed;
-        obj->force.x -= relative_mov.x * k;
-        obj->force.y -= relative_mov.y * k;
+            const double k = air_f / relative_speed;
+            obj->force.x -= relative_mov.x * k;
+            obj->force.y -= relative_mov.y * k;
+        }
+
+        obj->force.x -= phys->accel_of_gravity.x * obj->volume * phys->density;
+        obj->force.y -= phys->accel_of_gravity.y * obj->volume * phys->density;
     }
-
-    const double relative_mass = obj->mass - (obj->volume * phys->density); // maybe negative
-    obj->force.x += phys->accel_of_gravity.x * relative_mass;
-    obj->force.y += phys->accel_of_gravity.y * relative_mass;
 }
 
 static int compute_gravity(struct phys *phys) {
-    for (unsigned int i = 0; i < phys->objects_num - 1; i++) {
-        for (unsigned int j = i + 1; j < phys->objects_num; j++) {
+    for (int i = 0; i < phys->objects_num - 1; i++) {
+        for (int j = i + 1; j < phys->objects_num; j++) {
             struct pobj *a = &phys->objects[i];
             struct pobj *b = &phys->objects[j];
 
@@ -196,6 +196,7 @@ static int compute_gravity(struct phys *phys) {
 
             a->force.x -= dist.x * k;
             a->force.y -= dist.y * k;
+
             b->force.x += dist.x * k;
             b->force.y += dist.y * k;
         }
@@ -203,26 +204,21 @@ static int compute_gravity(struct phys *phys) {
     return PHYS_RES_OK;
 }
 
-int phys_run(struct phys *phys, double step_time, unsigned int steps) {
-    if (phys->objects_num == 0)
-        return PHYS_RES_OK;
-
-    unsigned int counter = 0;
+int phys_run(struct phys *phys, double step_time, int steps) {
     int err;
-
-    while (counter++ < steps) {
-        for (unsigned int i = 0; i < phys->objects_num; i++) {
-            compute_object_force(phys, phys->objects + i);
+    for (int i = 0; i < steps; i++) {
+        for (int i = 0; i < phys->objects_num; i++) {
+            compute_object_force(phys, &phys->objects[i]);
         }
         if (phys->is_gravity && phys->objects_num > 1) {
-            err = compute_gravity(phys);
-            if (err != PHYS_RES_OK)
+            if ((err = compute_gravity(phys)) != PHYS_RES_OK) {
                 return err;
+            }
         }
-        for (unsigned int i = 0; i < phys->objects_num; i++) {
-            err = pobj_run(phys->objects + i, step_time);
-            if (err != PHYS_RES_OK)
+        for (int i = 0; i < phys->objects_num; i++) {
+            if ((err = pobj_run(&phys->objects[i], step_time)) != PHYS_RES_OK) {
                 return err;
+            }
         }
     }
     phys->time += step_time * steps;

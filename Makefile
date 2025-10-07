@@ -10,7 +10,7 @@ test:
 	dotnet test
 
 publish:
-	dotnet publish physgui.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true -o ./publish
+	dotnet publish physgui.csproj -c Release -r linux-x64 --self-contained true -o ./publish
 
 engine:
 	cmake -B engine/build -S engine -DCMAKE_C_FLAGS="-ffast-math" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr --fresh

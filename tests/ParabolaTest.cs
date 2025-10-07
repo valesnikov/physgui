@@ -26,7 +26,7 @@ public class ParabolaTest
         int length = rand.Next(1, 101);
         (double, double)[] movs = new (double, double)[length];
 
-        using var phys = new physgui.PhysicsSystem((uint)length);
+        using var phys = new physgui.PhysicsSystem(length);
         phys.AccelerationOfGravity.Y = ACCELERATION;
 
         for (int i = 0; i < length; i++)
