@@ -30,7 +30,10 @@ namespace physgui
         public static partial IntPtr phys_create(int objects_num);
 
         [LibraryImport(LibraryName)]
-        public static partial int phys_run(IntPtr phys, double step_time, int steps);
+        public static partial int phys_run(IntPtr phys, double step_time, long steps);
+
+        [LibraryImport(LibraryName)]
+        public static partial int phys_run_bench(IntPtr phys, double step_time, long steps, out double exec_time);
 
         [LibraryImport(LibraryName)]
         public static partial double phys_get_density(IntPtr phys);
@@ -122,6 +125,14 @@ namespace physgui
             get => LibFlPhys.pvec_get_y(_nativePtr);
             set => LibFlPhys.pvec_set_y(_nativePtr, value);
         }
+
+        public void Set((double x, double y) vector) => (X, Y) = vector;
+
+        public void Deconstruct(out double x, out double y) => (x, y) = (X, Y);
+
+        public static implicit operator (double x, double y)(Vector vector) => (vector.X, vector.Y);
+
+        public override string ToString() => $"({X}, {Y})";
 
         public double Length => LibFlPhys.pvec_get_len(_nativePtr);
         public double Angle => LibFlPhys.pvec_get_angle(_nativePtr);
@@ -237,13 +248,24 @@ namespace physgui
 
         public double Time => LibFlPhys.phys_get_time(_nativePtr);
 
-        public void Run(double step_time, int steps)
+        public void Run(double step_time, long steps)
         {
             var res = LibFlPhys.phys_run(_nativePtr, step_time, steps);
             if (res != LibFlPhys.PHYS_RES_OK)
             {
                 throw new PhysException(res);
             }
+        }
+
+        public double RunBench(double step_time, long steps)
+        {
+            double execTime;
+            var res = LibFlPhys.phys_run_bench(_nativePtr, step_time, steps, out execTime);
+            if (res != LibFlPhys.PHYS_RES_OK)
+            {
+                throw new PhysException(res);
+            }
+            return execTime;
         }
 
         public void Dispose()

@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 const char *phys_strerror(int result) {
     switch (result) {
@@ -158,13 +159,14 @@ static void compute_object_force(const struct phys *phys, struct pobj *obj) {
             obj->mov.y - phys->wind.y,
         };
 
-        const double relative_speed = pvec_get_len(&relative_mov);
+        const double relative_speed_square =
+            relative_mov.x * relative_mov.x + relative_mov.y + relative_mov.y;
 
-        if (phys->density != 0 && relative_speed != 0) {
-            const double air_f = obj->area * phys->density * relative_speed * relative_speed * 0.5 *
-                                 PHYS_BALL_DRAG_COEF;
+        if (relative_speed_square > 0) {
+            const double air_resistance_force =
+                obj->area * phys->density * relative_speed_square * 0.5 * PHYS_BALL_DRAG_COEF;
 
-            const double k = air_f / relative_speed;
+            const double k = air_resistance_force / sqrt(relative_speed_square);
             obj->force.x -= relative_mov.x * k;
             obj->force.y -= relative_mov.y * k;
         }
@@ -177,34 +179,36 @@ static void compute_object_force(const struct phys *phys, struct pobj *obj) {
 static int compute_gravity(struct phys *phys) {
     for (int i = 0; i < phys->objects_num - 1; i++) {
         for (int j = i + 1; j < phys->objects_num; j++) {
-            struct pobj *a = &phys->objects[i];
-            struct pobj *b = &phys->objects[j];
+            struct pobj *const obj_a = &phys->objects[i];
+            struct pobj *const obj_b = &phys->objects[j];
 
-            const struct pvec dist = {
-                .x = a->pos.x - b->pos.x,
-                .y = a->pos.y - b->pos.y,
+            const struct pvec distance_vector = {
+                .x = obj_a->pos.x - obj_b->pos.x,
+                .y = obj_a->pos.y - obj_b->pos.y,
             };
 
-            const double dist_len = pvec_get_len(&dist);
-            if (dist_len == 0) {
+            const double distance_square =
+                distance_vector.x * distance_vector.x + distance_vector.y * distance_vector.y;
+
+            if (distance_square == 0) {
                 return PHYS_RES_ERR_ZERO_DIST;
             }
 
-            const double gravy_f = a->mass * b->mass * PHYS_G / (dist_len * dist_len);
+            const double gravity_force = PHYS_G * obj_a->mass * obj_b->mass / distance_square;
 
-            const double k = gravy_f / dist_len;
+            const double k = gravity_force / sqrt(distance_square);
 
-            a->force.x -= dist.x * k;
-            a->force.y -= dist.y * k;
+            obj_a->force.x -= distance_vector.x * k;
+            obj_a->force.y -= distance_vector.y * k;
 
-            b->force.x += dist.x * k;
-            b->force.y += dist.y * k;
+            obj_b->force.x += distance_vector.x * k;
+            obj_b->force.y += distance_vector.y * k;
         }
     }
     return PHYS_RES_OK;
 }
 
-int phys_run(struct phys *phys, double step_time, int steps) {
+int phys_run(struct phys *phys, double step_time, long steps) {
     int err;
     for (int i = 0; i < steps; i++) {
         for (int i = 0; i < phys->objects_num; i++) {
@@ -223,4 +227,11 @@ int phys_run(struct phys *phys, double step_time, int steps) {
     }
     phys->time += step_time * steps;
     return PHYS_RES_OK;
+}
+
+int phys_run_bench(struct phys *phys, double step_time, long steps, double *execution_time) {
+    clock_t start = clock();
+    int err = phys_run(phys, step_time, steps);
+    *execution_time = (double)(clock() - start) / CLOCKS_PER_SEC;
+    return err;
 }

@@ -59,7 +59,8 @@ FLPHYS_EXPORT int phys_get_objects_num(const struct phys *phys);
 FLPHYS_EXPORT int phys_get_is_gravity(const struct phys *phys);
 FLPHYS_EXPORT void phys_set_is_gravity(struct phys *phys, int is_gravity);
 FLPHYS_EXPORT double phys_get_time(const struct phys *phys);
-FLPHYS_EXPORT int phys_run(struct phys *phys, double step_time, int steps);
+FLPHYS_EXPORT int phys_run(struct phys *phys, double step_time, long steps);
+FLPHYS_EXPORT int phys_run_bench(struct phys *phys, double step_time, long steps, double *exec_time);
 FLPHYS_EXPORT void phys_destroy(struct phys *phys);
 
 #ifdef __cplusplus

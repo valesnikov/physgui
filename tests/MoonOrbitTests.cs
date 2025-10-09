@@ -37,7 +37,7 @@ public class MoonOrbitTests
 
         double expectedTime = (2 * physgui.LibFlPhys.PHYS_PI * (MOON_RADIUS + HEIGHT)) / rock.Movement.Length;
 
-        int steps = (int)(expectedTime / ACCURACY / 4);
+        long steps = (long)(expectedTime / ACCURACY / 4);
 
         phys.Run(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
@@ -56,4 +56,3 @@ public class MoonOrbitTests
         Assert.True(distance(rock.Position, 0, MOON_RADIUS + HEIGHT) <= 100);
     }
 }
-
