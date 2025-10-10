@@ -1,9 +1,6 @@
 engine/build
-engine/.cache
-engine/.vscode
-bin/
-obj/
-tests/bin/
-tests/obj/
-.vscode/
+**/.cache
+**/.vscode
+**/bin/
+**/obj/
 publish/

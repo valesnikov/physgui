@@ -2,7 +2,7 @@ using System.IO;
 using YamlDotNet.RepresentationModel;
 using YamlDotNet.Core.Events;
 
-namespace physgui
+namespace PhysGui
 {
     public class YamlSerialize
     {

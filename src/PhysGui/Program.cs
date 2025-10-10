@@ -6,7 +6,7 @@ using Gtk;
 // start/stop
 // step
 
-namespace physgui
+namespace PhysGui
 {
     class Program
     {

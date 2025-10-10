@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace tests;
+﻿namespace tests;
 
 public class GetSetTests
 {
@@ -9,7 +7,7 @@ public class GetSetTests
     {
         Random rand = new Random();
 
-        using var phys = new physgui.PhysicsSystem(1);
+        using var phys = new PhysGui.PhysicsSystem(1);
 
         double val;
         phys.Density = val = rand.NextDouble();

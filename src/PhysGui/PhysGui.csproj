@@ -3,17 +3,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="src\**\*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="src\**\*.glade" />
-    <EmbeddedResource Include="src\**\*.glade">
+    <None Remove="**\*.glade" />
+    <EmbeddedResource Include="**\*.glade">
       <LogicalName>%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
@@ -22,4 +19,5 @@
     <PackageReference Include="GtkSharp" Version="3.24.24.*" />
     <PackageReference Include="YamlDotNet" Version="16.3.*" />
   </ItemGroup>
+
 </Project>

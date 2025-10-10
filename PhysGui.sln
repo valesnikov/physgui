@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7132958A-E96E-451D-AB25-15EAE2A2D0D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysGui", "src\PhysGui\PhysGui.csproj", "{18A32071-B14B-4BBB-9CF0-498780E7EEA7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A052D740-C016-4D7A-9467-B4EDC4529CE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhysGui.Tests", "tests\PhysGui.Tests\PhysGui.Tests.csproj", "{91A3B891-14FE-4904-B67D-BA5C83F8025D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18A32071-B14B-4BBB-9CF0-498780E7EEA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A32071-B14B-4BBB-9CF0-498780E7EEA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A32071-B14B-4BBB-9CF0-498780E7EEA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A32071-B14B-4BBB-9CF0-498780E7EEA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91A3B891-14FE-4904-B67D-BA5C83F8025D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91A3B891-14FE-4904-B67D-BA5C83F8025D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91A3B891-14FE-4904-B67D-BA5C83F8025D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91A3B891-14FE-4904-B67D-BA5C83F8025D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{18A32071-B14B-4BBB-9CF0-498780E7EEA7} = {7132958A-E96E-451D-AB25-15EAE2A2D0D0}
+		{91A3B891-14FE-4904-B67D-BA5C83F8025D} = {A052D740-C016-4D7A-9467-B4EDC4529CE6}
+	EndGlobalSection
+EndGlobal

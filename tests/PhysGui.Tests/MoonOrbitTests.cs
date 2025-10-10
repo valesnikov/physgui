@@ -9,10 +9,10 @@ public class MoonOrbitTests
 
     private static double FirstCosmicVelocity(double mass, double radius)
     {
-        return Math.Sqrt(physgui.LibFlPhys.PHYS_G * mass / radius);
+        return Math.Sqrt(PhysGui.LibFlPhys.PHYS_G * mass / radius);
     }
 
-    private static double distance(physgui.Vector a, double x, double y)
+    private static double distance(PhysGui.Vector a, double x, double y)
     {
         double dx = a.X - x;
         double dy = a.Y - y;
@@ -22,7 +22,7 @@ public class MoonOrbitTests
     [Fact]
     public void test()
     {
-        using var phys = new physgui.PhysicsSystem(2);
+        using var phys = new PhysGui.PhysicsSystem(2);
         phys.IsGravityEnabled = true;
 
         var moon = phys.Objects[0];
@@ -35,7 +35,7 @@ public class MoonOrbitTests
         rock.Position.Y = MOON_RADIUS + HEIGHT;
         rock.Movement.X = FirstCosmicVelocity(MOON_MASS, MOON_RADIUS + HEIGHT);
 
-        double expectedTime = (2 * physgui.LibFlPhys.PHYS_PI * (MOON_RADIUS + HEIGHT)) / rock.Movement.Length;
+        double expectedTime = (2 * PhysGui.LibFlPhys.PHYS_PI * (MOON_RADIUS + HEIGHT)) / rock.Movement.Length;
 
         long steps = (long)(expectedTime / ACCURACY / 4);
 

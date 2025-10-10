@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
-namespace physgui
+namespace PhysGui
 {
     public static partial class LibFlPhys
     {
@@ -103,7 +103,7 @@ namespace physgui
     }
 
 
-    public class Vector
+    public sealed class Vector
     {
         private readonly IntPtr _nativePtr;
 
@@ -138,7 +138,7 @@ namespace physgui
         public double Angle => LibFlPhys.pvec_get_angle(_nativePtr);
     }
 
-    public class PhysicalObject
+    public sealed class PhysicalObject
     {
         private readonly IntPtr _nativePtr;
 
@@ -181,7 +181,7 @@ namespace physgui
         }
     }
 
-    public class PhysicsSystem : IDisposable
+    public sealed class PhysicsSystem : IDisposable
     {
         private IntPtr _nativePtr;
 

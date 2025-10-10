@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\physgui.csproj" />
+    <ProjectReference Include="..\..\src\PhysGui\PhysGui.csproj" />
   </ItemGroup>
 
 </Project>

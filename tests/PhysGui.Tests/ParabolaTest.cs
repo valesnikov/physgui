@@ -4,9 +4,9 @@ public class ParabolaTest
 {
     private const double ACCURACY = 0.1;
 
-    private const double ACCELERATION = -physgui.LibFlPhys.PHYS_ACCEL_OF_FREE_FALL;
+    private const double ACCELERATION = -PhysGui.LibFlPhys.PHYS_ACCEL_OF_FREE_FALL;
 
-    private static double distance(physgui.Vector a, double x, double y)
+    private static double distance(PhysGui.Vector a, double x, double y)
     {
         double dx = a.X - x;
         double dy = a.Y - y;
@@ -25,7 +25,7 @@ public class ParabolaTest
         int length = rand.Next(1, 101);
         (double x, double y)[] movs = new (double, double)[length];
 
-        using var phys = new physgui.PhysicsSystem(length);
+        using var phys = new PhysGui.PhysicsSystem(length);
         phys.AccelerationOfGravity.Y = ACCELERATION;
 
         for (int i = 0; i < length; i++)
