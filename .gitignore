@@ -1,4 +1,4 @@
-engine/build
+.cbuild/
 **/.cache
 **/.vscode
 **/bin/

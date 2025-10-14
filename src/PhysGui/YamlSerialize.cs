@@ -1,70 +1,55 @@
-using System.IO;
 using YamlDotNet.RepresentationModel;
-using YamlDotNet.Core.Events;
 
 namespace PhysGui
 {
     public class YamlSerialize
     {
-        static public void serialize(PhysicsSystem data, TextWriter output)
+        private YamlStream yaml;
+        private YamlMappingNode root;
+        private string path;
+
+
+
+        public YamlSerialize(string path)
         {
-            var yaml = new YamlStream(
-                        new YamlDocument(new YamlMappingNode())
-                    );
-            var root = (YamlMappingNode)yaml.Documents[0].RootNode;
-            root.Add("phys", showPhys(data));
-            yaml.Save(output, assignAnchors: false);
+            this.path = path;
+            yaml = new YamlStream();
+            using (var reader = new StreamReader(path))
+                yaml.Load(reader);
+            root = (YamlMappingNode)yaml.Documents[0].RootNode;
         }
 
-        static private YamlSequenceNode showVector(Vector vec)
+        public PhysicsSystem createSystem()
         {
-            var seq = new YamlSequenceNode {
-                new YamlScalarNode(vec.X.ToString()),
-                new YamlScalarNode(vec.Y.ToString())
-            };
-            seq.Style = SequenceStyle.Flow;
-            return seq;
+            var physNode = GetValue<YamlMappingNode>(root, "phys");
+
+            return null;
         }
 
-        static private YamlMappingNode showObject(PhysicalObject obj)
+        private static T GetValue<T>(this YamlMappingNode map, string key)
         {
-            var node = new YamlMappingNode { };
-            node.Add("pos", showVector(obj.Position));
-            if (obj.Movement.Length > 0)
-            {
-                node.Add("mov", showVector(obj.Movement));
-            }
-            node.Add("mass", obj.Mass.ToString());
-            node.Add("radius", obj.Radius.ToString());
-            return node;
+            var keyNode = new YamlScalarNode(key);
+
+            if (!map.Children.ContainsKey(keyNode))
+                throw new ConfigException($"Key '{key}' not found in YAML mapping.");
+
+            if (map.Children[keyNode] is T value)
+                return value;
+
+            throw new ConfigException($"Value of '{key}' is not a {typeof(T).Name} node.");
         }
 
-
-        static private YamlMappingNode showPhys(PhysicsSystem phys)
+        public void save()
         {
-            var node = new YamlMappingNode { };
-            if (phys.Density > 0)
-            {
-                node.Add("density", phys.Density.ToString());
-            }
-            if (phys.IsGravityEnabled)
-            {
-                node.Add("gravity", phys.IsGravityEnabled.ToString().ToLower());
-            }
-            if (phys.AccelerationOfGravity.Length > 0)
-            {
-                node.Add("acceleration", showVector(phys.AccelerationOfGravity));
-            }
-            if (phys.Objects.Count > 0)
-            {
-                var seq = new YamlSequenceNode { };
-                foreach (var obj in phys.Objects)
-                {
-                    seq.Add(showObject(obj));
-                }
-                node.Add("objects", seq);
-            }
-            return node;
+            using (var writer = new StreamWriter(path))
+                yaml.Save(writer, assignAnchors: false);
         }
     }
+
+    public class ConfigException : Exception
+    {
+        public ConfigException(string error)
+            : base(error) { }
+    }
+
 }

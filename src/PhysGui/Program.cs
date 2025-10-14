@@ -1,4 +1,3 @@
-using System;
 using Gtk;
 
 // yaml parser
