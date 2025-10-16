@@ -5,7 +5,7 @@ namespace PhysGui
 {
     public static partial class LibFlPhys
     {
-        private const string LibraryName = "libflphys.so";
+        private const string LibraryName = "flphys";
 
         public const double PHYS_G = 6.6743015151515151514e-11;
         public const double PHYS_PI = 3.1415926535897932385;

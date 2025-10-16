@@ -1,0 +1,13 @@
+products:
+- name: Laptop
+  price: 999.99
+- name: Mouse
+  price: 25.50
+categories:
+- electronics
+- accessories
+arr1:
+- 1
+- 2
+arr2: [3, 4]
+...
