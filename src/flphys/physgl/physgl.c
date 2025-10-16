@@ -1,4 +1,4 @@
-#include "flphysgl.h"
+#include "physgl.h"
 #include <GL/glew.h>
 #include <math.h>
 #include <stdio.h>
@@ -8,29 +8,30 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-const char *vertexShaderSrc = "#version 330 core\n"
-                              "layout(location = 0) in vec2 aVert;\n"
-                              "layout(location = 1) in vec3 aColor;\n"
-                              "layout(location = 2) in vec2 aPosition;\n"
-                              "layout(location = 3) in float aRadius;\n"
-                              "out vec3 vColor;\n"
-                              "uniform vec2 center;\n"
-                              "uniform float scale;\n"
-                              "uniform float aspect;\n"
-                              "void main() {\n"
-                              "    vColor = aColor;\n"
-                              "    vec2 pos = (aVert * aRadius + aPosition) * scale - center * scale;\n"
-                              "    //vec2 pos = aVert;\n"
-                              "    pos.x /= aspect;\n"
-                              "    gl_Position = vec4(pos, 0.0, 1.0);\n"
-                              "}\n";
+static const char vertexShaderSrc[] =
+    "#version 330 core\n"
+    "layout(location = 0) in vec2 aVert;\n"
+    "layout(location = 1) in vec3 aColor;\n"
+    "layout(location = 2) in vec2 aPosition;\n"
+    "layout(location = 3) in float aRadius;\n"
+    "out vec3 vColor;\n"
+    "uniform vec2 center;\n"
+    "uniform float scale;\n"
+    "uniform float aspect;\n"
+    "void main() {\n"
+    "    vColor = aColor;\n"
+    "    vec2 pos = (aVert * aRadius + aPosition) * scale - center * scale;\n"
+    "    //vec2 pos = aVert;\n"
+    "    pos.x /= aspect;\n"
+    "    gl_Position = vec4(pos, 0.0, 1.0);\n"
+    "}\n";
 
-const char *fragmentShaderSrc = "#version 330 core\n"
-                                "in vec3 vColor;\n"
-                                "out vec4 FragColor;\n"
-                                "void main() {\n"
-                                "    FragColor = vec4(vColor, 1.0);\n"
-                                "}\n";
+static const char fragmentShaderSrc[] = "#version 330 core\n"
+                                        "in vec3 vColor;\n"
+                                        "out vec4 FragColor;\n"
+                                        "void main() {\n"
+                                        "    FragColor = vec4(vColor, 1.0);\n"
+                                        "}\n";
 
 static GLuint compile_shader(GLenum type, const char *source) {
     GLuint shader = glCreateShader(type);
@@ -232,7 +233,11 @@ void physgl_preview_render(struct physgl *phgl, double center_x, double center_y
 
     glUseProgram(phgl->shader_program);
 
-    glUniform2f(glGetUniformLocation(phgl->shader_program, "center"), (GLfloat)center_x, (GLfloat)center_y);
+    glUniform2f(
+        glGetUniformLocation(phgl->shader_program, "center"),
+        (GLfloat)center_x,
+        (GLfloat)center_y
+    );
     glUniform1f(glGetUniformLocation(phgl->shader_program, "scale"), (GLfloat)scale);
     glUniform1f(glGetUniformLocation(phgl->shader_program, "aspect"), (GLfloat)phgl->window_aspect);
 
