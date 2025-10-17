@@ -2,15 +2,12 @@
 
 in vec3 vColor;
 in vec2 vPos;
-in vec2 vCenter;
-in float vRadius;
 
 out vec4 FragColor;
 
 void main() {
-    if (length(vPos) <= 1) {
-        FragColor = vec4(vColor, 1.0);
-    } else {
-        FragColor = vec4(0,0,0,0);
-    }
+    float dist = length(vPos);
+    float smoothing = fwidth(dist);
+    float alpha = smoothstep(1.0, 1.0 - smoothing, dist);
+    FragColor = vec4(vColor, alpha);
 }
