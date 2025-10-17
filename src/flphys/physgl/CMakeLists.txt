@@ -23,6 +23,9 @@ target_link_libraries(physgl PUBLIC
     phys
 )
 
+register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragmentShader.frag" physgl_vertex_shader_src)
+register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertextShader.vert" physgl_fragment_shader_src)
+
 find_library(M_LIB m)
 
 if(M_LIB)

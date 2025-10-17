@@ -13,14 +13,17 @@ project(
     LANGUAGES C
 )
 
+include(embed/register_embedded_file.cmake)
+
 add_subdirectory(phys)
 add_subdirectory(physgl)
+add_subdirectory(embed)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED)
-
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC
     physgl
     phys
+    embedded_files
 )
 
 install(TARGETS ${CMAKE_PROJECT_NAME}

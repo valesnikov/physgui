@@ -8,30 +8,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-static const char vertexShaderSrc[] =
-    "#version 330 core\n"
-    "layout(location = 0) in vec2 aVert;\n"
-    "layout(location = 1) in vec3 aColor;\n"
-    "layout(location = 2) in vec2 aPosition;\n"
-    "layout(location = 3) in float aRadius;\n"
-    "out vec3 vColor;\n"
-    "uniform vec2 center;\n"
-    "uniform float scale;\n"
-    "uniform float aspect;\n"
-    "void main() {\n"
-    "    vColor = aColor;\n"
-    "    vec2 pos = (aVert * aRadius + aPosition) * scale - center * scale;\n"
-    "    //vec2 pos = aVert;\n"
-    "    pos.x /= aspect;\n"
-    "    gl_Position = vec4(pos, 0.0, 1.0);\n"
-    "}\n";
-
-static const char fragmentShaderSrc[] = "#version 330 core\n"
-                                        "in vec3 vColor;\n"
-                                        "out vec4 FragColor;\n"
-                                        "void main() {\n"
-                                        "    FragColor = vec4(vColor, 1.0);\n"
-                                        "}\n";
+// from generated
+extern const unsigned char physgl_vertex_shader_src[];
+extern const unsigned char physgl_fragment_shader_src[];
 
 static GLuint compile_shader(GLenum type, const char *source) {
     GLuint shader = glCreateShader(type);
@@ -192,8 +171,8 @@ struct physgl *physgl_init(unsigned int circle_verts) {
         generate_circle(phgl, circle_verts);
         setup_buffers(phgl);
 
-        GLuint vs = compile_shader(GL_VERTEX_SHADER, vertexShaderSrc);
-        GLuint fs = compile_shader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+        GLuint vs = compile_shader(GL_VERTEX_SHADER, (const char *)physgl_vertex_shader_src);
+        GLuint fs = compile_shader(GL_FRAGMENT_SHADER, (const char *)physgl_fragment_shader_src);
         if (!vs || !fs) {
             physgl_destroy(phgl);
             return NULL;
