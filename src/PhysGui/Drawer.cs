@@ -19,7 +19,7 @@ namespace PhysGui
         {
             var area = (GLArea)sender!;
             area.MakeCurrent();
-            gl = new PhysGl(128);
+            gl = new PhysGl();
         }
 
         public void OnGLRender(object? sender, EventArgs e)

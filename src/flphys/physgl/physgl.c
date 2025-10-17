@@ -59,12 +59,12 @@ struct physgl {
     GLuint vao;
     GLuint shader_program;
     GLfloat window_aspect; // width / height
+
     struct {
-        GLuint vbo, ebo;
-        unsigned int verts_count;
-        GLfloat (*vbo_data)[2];
-        GLuint (*ebo_data)[3];
-    } circle;
+        GLuint vbo;
+        GLuint ebo;
+    } base_fig;
+
     unsigned int count;
     struct {
         GLuint vbo;
@@ -80,32 +80,15 @@ struct physgl {
     } radii;
 };
 
-static void generate_circle(struct physgl *phgl, unsigned int circle_verts) {
-    for (unsigned int i = 0; i < circle_verts; i++) {
-        const float angle = 2.0f * M_PI * i / circle_verts;
-        phgl->circle.vbo_data[i][0] = cosf(angle);
-        phgl->circle.vbo_data[i][1] = sinf(angle);
-    }
-    for (unsigned int i = 0; i < circle_verts - 2; i++) {
-        phgl->circle.ebo_data[i][0] = 0;
-        phgl->circle.ebo_data[i][1] = i + 1;
-        phgl->circle.ebo_data[i][2] = i + 2;
-    }
-}
-
 static void setup_buffers(struct physgl *phgl) {
     glGenVertexArrays(1, &phgl->vao);
     glBindVertexArray(phgl->vao);
 
-    glGenBuffers(1, &phgl->circle.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, phgl->circle.vbo);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(GLfloat[2]) * phgl->circle.verts_count,
-        phgl->circle.vbo_data,
-        GL_STATIC_DRAW
-    );
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GLuint[2]), (void *)0);
+    glGenBuffers(1, &phgl->base_fig.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, phgl->base_fig.vbo);
+    GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glEnableVertexAttribArray(0);
     glVertexAttribDivisor(0, 0);
 
@@ -127,22 +110,14 @@ static void setup_buffers(struct physgl *phgl) {
     glEnableVertexAttribArray(3);
     glVertexAttribDivisor(3, 1);
 
-    glGenBuffers(1, &phgl->circle.ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, phgl->circle.ebo);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(GLuint[3]) * (phgl->circle.verts_count - 2),
-        phgl->circle.ebo_data,
-        GL_STATIC_DRAW
-    );
+    glGenBuffers(1, &phgl->base_fig.ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, phgl->base_fig.ebo);
+    GLuint indices[] = {0, 1, 2, 2, 3, 0};
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glBindVertexArray(0);
 }
 
-struct physgl *physgl_init(unsigned int circle_verts) {
-    if (circle_verts < 3) {
-        circle_verts = 3;
-    }
-
+struct physgl *physgl_init(void) {
     GLenum err = glewInit();
     if (err != GLEW_OK) {
         fprintf(stderr, "GLEW error: %s\n", glewGetErrorString(err));
@@ -153,22 +128,12 @@ struct physgl *physgl_init(unsigned int circle_verts) {
     printf("GLSL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
     printf("Vendor: %s\n", glGetString(GL_VENDOR));
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     struct physgl *phgl = calloc(1, sizeof(struct physgl));
     if (phgl != NULL) {
-        phgl->circle.verts_count = circle_verts;
-        phgl->circle.vbo_data = malloc(sizeof(GLfloat[2]) * circle_verts);
-        if (phgl->circle.vbo_data == NULL) {
-            physgl_destroy(phgl);
-            return NULL;
-        }
-        phgl->circle.ebo_data = malloc(sizeof(GLuint[3]) * (circle_verts - 2));
-        if (phgl->circle.ebo_data == NULL) {
-            physgl_destroy(phgl);
-            return NULL;
-        }
-
-        generate_circle(phgl, circle_verts);
+        
         setup_buffers(phgl);
 
         GLuint vs = compile_shader(GL_VERTEX_SHADER, (const char *)physgl_vertex_shader_src);
@@ -183,7 +148,6 @@ struct physgl *physgl_init(unsigned int circle_verts) {
             physgl_destroy(phgl);
             return NULL;
         }
-
         phgl->count = 0;
         phgl->window_aspect = (float)16 / 9;
     }
@@ -220,8 +184,7 @@ void physgl_preview_render(struct physgl *phgl, double center_x, double center_y
     glUniform1f(glGetUniformLocation(phgl->shader_program, "scale"), (GLfloat)scale);
     glUniform1f(glGetUniformLocation(phgl->shader_program, "aspect"), (GLfloat)phgl->window_aspect);
 
-    GLsizei index_count = 3 * (phgl->circle.verts_count - 2);
-    glDrawElementsInstanced(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0, 2);
+    glDrawElementsInstanced(GL_TRIANGLES, 3 * 2, GL_UNSIGNED_INT, 0, 2);
     check_gl_error("physgl_preview_render");
 }
 
@@ -237,8 +200,11 @@ void physgl_destroy(struct physgl *phgl) {
     if (phgl->vao) {
         glDeleteVertexArrays(1, &phgl->vao);
     }
-    if (phgl->circle.vbo) {
-        glDeleteBuffers(1, &phgl->circle.vbo);
+    if (phgl->base_fig.vbo) {
+        glDeleteBuffers(1, &phgl->base_fig.vbo);
+    }
+    if (phgl->base_fig.ebo) {
+        glDeleteBuffers(1, &phgl->base_fig.ebo);
     }
     if (phgl->colors.vbo) {
         glDeleteBuffers(1, &phgl->colors.vbo);
@@ -252,8 +218,6 @@ void physgl_destroy(struct physgl *phgl) {
     if (phgl->shader_program) {
         glDeleteProgram(phgl->shader_program);
     }
-    free(phgl->circle.vbo_data);
-    free(phgl->circle.ebo_data);
     free(phgl->pos.data);
     free(phgl->radii.data);
     free(phgl->colors.data);

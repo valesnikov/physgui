@@ -13,7 +13,7 @@ extern "C" {
 #define FLPHYS_EXPORT
 #endif
 
-FLPHYS_EXPORT struct physgl *physgl_init(unsigned int circle_verts /*at least 3*/);
+FLPHYS_EXPORT struct physgl *physgl_init(void);
 
 FLPHYS_EXPORT void physgl_on_resize(struct physgl *phgl, int width, int height);
 

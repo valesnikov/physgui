@@ -26,5 +26,4 @@ clean:
 	rm -rf src/PhysGui/bin
 	rm -rf tests/PhysGui.Tests/obj
 	rm -rf tests/PhysGui.Tests/bin
-	rm -rf src/flphys/build
-	rm -rf src/flphys/.cache
+	rm -rf .cbuild

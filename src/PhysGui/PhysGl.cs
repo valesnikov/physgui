@@ -8,7 +8,7 @@ namespace PhysGui
         private const string LibraryName = "flphys";
 
         [LibraryImport(LibraryName)]
-        public static partial IntPtr physgl_init(uint circleVerts /*at least 3*/);
+        public static partial IntPtr physgl_init();
 
         [LibraryImport(LibraryName)]
         public static partial void physgl_on_resize(IntPtr phgl, int width, int height);
@@ -24,12 +24,10 @@ namespace PhysGui
     {
         private IntPtr _handle;
 
-        public PhysGl(uint circleVerts)
+        public PhysGl()
         {
-            if (circleVerts < 3)
-                throw new ArgumentOutOfRangeException(nameof(circleVerts), "Circle must have at least 3 vertices.");
 
-            _handle = LibFlPhysGl.physgl_init(circleVerts);
+            _handle = LibFlPhysGl.physgl_init();
             if (_handle == IntPtr.Zero)
                 throw new InvalidOperationException("Failed to initialize PhysGl.");
         }
