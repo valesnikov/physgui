@@ -29,7 +29,8 @@ namespace PhysGui
             glArea.Events |= Gdk.EventMask.ButtonPressMask
                | Gdk.EventMask.ButtonReleaseMask
                | Gdk.EventMask.PointerMotionMask
-               | Gdk.EventMask.ScrollMask;
+               | Gdk.EventMask.ScrollMask
+               | Gdk.EventMask.TouchpadGestureMask;
 
             glArea.SetRequiredVersion(3, 3);
 
@@ -40,6 +41,9 @@ namespace PhysGui
             glArea.ButtonReleaseEvent += drawer.OnMouseUp;
             glArea.MotionNotifyEvent += drawer.OnMouseMove;
             glArea.ScrollEvent += drawer.OnMouseScroll;
+
+            var pinch = new Gtk.GestureZoom(glArea);
+            pinch.ScaleChanged += drawer.OnTouchpadScroll;
         }
 
         private void Window_DeleteEvent(object sender, DeleteEventArgs a)

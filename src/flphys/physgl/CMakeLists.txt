@@ -8,6 +8,10 @@ target_include_directories(physgl PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+find_package(PkgConfig REQUIRED)
+
+pkg_check_modules(EPOXY REQUIRED epoxy)
+
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
 endif()
@@ -15,11 +19,18 @@ endif()
 set(OpenGL_GL_PREFERENCE GLVND)
 
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
+
+target_include_directories(physgl PRIVATE
+    ${EPOXY_INCLUDE_DIRS}
+)
+
+target_compile_options(physgl PRIVATE
+    ${EPOXY_CFLAGS_OTHER}
+)
 
 target_link_libraries(physgl PUBLIC
     OpenGL::GL
-    GLEW::GLEW
+    ${EPOXY_LIBRARIES}
     phys
 )
 

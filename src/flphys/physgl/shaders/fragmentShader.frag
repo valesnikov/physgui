@@ -7,7 +7,7 @@ out vec4 FragColor;
 
 void main() {
     float dist = length(vPos);
-    float smoothing = fwidth(dist);
+    float smoothing = fwidth(dist) * 1.5;
     float alpha = smoothstep(1.0, 1.0 - smoothing, dist);
     FragColor = vec4(vColor, alpha);
 }

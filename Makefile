@@ -16,7 +16,7 @@ publish:
 	cmake --install .cbuild --prefix ./publish --strip
 
 engine:
-	cmake -B .cbuild -S src/flphys -DCMAKE_C_FLAGS="-ffast-math" -DCMAKE_BUILD_TYPE=Release --fresh
+	cmake -B .cbuild -S src/flphys -DCMAKE_C_FLAGS="-ffast-math" -DCMAKE_BUILD_TYPE=Release --fresh -G Ninja
 	cmake --build .cbuild
 	sudo cmake --install .cbuild --prefix /usr/lib --strip
 

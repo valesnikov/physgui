@@ -4,29 +4,32 @@ namespace PhysGui
 {
     public class Drawer
     {
-        private PhysGl? gl = null;
+        private List<IDrawable> drawable = new List<IDrawable>();
         private int width = 800;
         private int height = 600;
         private double scale = 1;
-        private double centerX = 0;
-        private double centerY = 0;
-        private double lastX = 0;
-        private double lastY = 0;
+        private (double x, double y) center = (0, 0);
+        private (double x, double y) last = (0, 0);
 
-        public Drawer() { }
+        public Drawer()
+        {
+            drawable.Add(new PhysGl());
+        }
 
         public void OnGLRealized(object? sender, EventArgs e)
         {
             var area = (GLArea)sender!;
             area.MakeCurrent();
-            gl = new PhysGl();
+            foreach (var obj in drawable)
+                obj.Realized();
         }
 
         public void OnGLRender(object? sender, EventArgs e)
         {
             var area = (GLArea)sender!;
             area.MakeCurrent();
-            gl?.PreviewRender(centerX, centerY, scale);
+            foreach (var obj in drawable)
+                obj.Render(center.x, center.y, scale);
         }
 
         public void OnGLResize(object? sender, EventArgs e)
@@ -41,19 +44,18 @@ namespace PhysGui
                 height = 1;
             }
             area.MakeCurrent();
-            gl?.OnResize(width, height);
+            foreach (var obj in drawable)
+                obj.Resize((double)width / height);
         }
 
         public void OnMouseDown(object? sender, ButtonPressEventArgs args)
         {
-            lastX = args.Event.X;
-            lastY = args.Event.Y;
+            last = (args.Event.X, args.Event.Y);
         }
 
         public void OnMouseUp(object? sender, ButtonReleaseEventArgs args)
         {
-            lastX = args.Event.X;
-            lastY = args.Event.Y;
+            last = (args.Event.X, args.Event.Y);
         }
 
         public void OnMouseMove(object? sender, MotionNotifyEventArgs args)
@@ -70,20 +72,24 @@ namespace PhysGui
 
             if (leftButtonPressed)
             {
-
-                double deltaX = (x - lastX) / width * 2 * width / height / scale;
-                double deltaY = (lastY - y) / height * 2 / scale;
-                centerX -= deltaX;
-                centerY -= deltaY;
-                lastX = x;
-                lastY = y;
+                double deltaX = (x - last.x) / width * 2 * width / height / scale;
+                double deltaY = (last.y - y) / height * 2 / scale;
+                center.x -= deltaX;
+                center.y -= deltaY;
+                last.x = x;
+                last.y = y;
                 area.QueueRender();
             }
             else
             {
-                lastX = x;
-                lastY = y;
+                last.x = x;
+                last.y = y;
             }
+        }
+
+        public void OnTouchpadScroll(object? sender, ScaleChangedArgs args)
+        {
+            Console.WriteLine($"Zoom scale: {args.Scale}");
         }
 
         public void OnMouseScroll(object? sender, ScrollEventArgs args)
@@ -95,8 +101,8 @@ namespace PhysGui
             double k = 1.0 / oldScale - 1.0 / scale;
             double aspect = (double)width / height;
 
-            centerX += (args.Event.X / width * 2.0 - 1.0) * aspect * k;
-            centerY += (1.0 - args.Event.Y / height * 2.0) * k;
+            center.x += (args.Event.X / width * 2.0 - 1.0) * aspect * k;
+            center.y += (1.0 - args.Event.Y / height * 2.0) * k;
 
             area.QueueRender();
         }

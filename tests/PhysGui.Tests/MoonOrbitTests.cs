@@ -38,21 +38,24 @@ public class MoonOrbitTests
         double expectedTime = (2 * PhysGui.LibFlPhys.PHYS_PI * (MOON_RADIUS + HEIGHT)) / rock.Movement.Length;
 
         long steps = (long)(expectedTime / ACCURACY / 4);
+        double time = 0;
 
-        phys.Run(ACCURACY, steps);
+        time += phys.RunBench(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, MOON_RADIUS + HEIGHT, 0) <= 12.5);
 
-        phys.Run(ACCURACY, steps);
+        time += phys.RunBench(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, 0, -(MOON_RADIUS + HEIGHT)) <= 25);
 
-        phys.Run(ACCURACY, steps);
+        time += phys.RunBench(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, -(MOON_RADIUS + HEIGHT), 0) <= 50);
 
-        phys.Run(ACCURACY, steps);
+        time += phys.RunBench(ACCURACY, steps);
         Assert.True(distance(moon.Position, 0, 0) <= 1);
         Assert.True(distance(rock.Position, 0, MOON_RADIUS + HEIGHT) <= 100);
+
+        Console.WriteLine($"MoonOrbitTests speed: {time} s");
     }
 }

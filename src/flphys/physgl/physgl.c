@@ -1,5 +1,5 @@
 #include "physgl.h"
-#include <GL/glew.h>
+#include <epoxy/gl.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,17 @@ static GLuint compile_shader(GLenum type, const char *source) {
     return shader;
 }
 
-static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader) {
+static GLuint link_program(const char *vertex_shader_src, const char *fragment_shader_src) {
+    GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_src);
+    if (vertex_shader == 0) {
+        return 0;
+    }
+    GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_src);
+    if (fragment_shader == 0) {
+        glDeleteShader(vertex_shader);
+        return 0;
+    }
+
     GLuint program = glCreateProgram();
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
@@ -39,6 +49,8 @@ static GLuint link_program(GLuint vertex_shader, GLuint fragment_shader) {
         glGetProgramInfoLog(program, 1024, NULL, log);
         fprintf(stderr, "Program link error:\n%s\n", log);
         glDeleteProgram(program);
+        glDeleteShader(vertex_shader);
+        glDeleteShader(fragment_shader);
         return 0;
     }
     glDetachShader(program, vertex_shader);
@@ -58,8 +70,8 @@ static void check_gl_error(const char *tag) {
 struct physgl {
     GLuint vao;
     GLuint shader_program;
-    GLfloat window_aspect; // width / height
 
+    GLfloat window_aspect; // width / height
     struct {
         GLuint vbo;
         GLuint ebo;
@@ -76,8 +88,14 @@ struct physgl {
     } pos;
     struct {
         GLuint vbo;
-        GLfloat (*data)[2];
+        GLfloat *data;
     } radii;
+
+    struct { // for uniform variables
+        GLuint center;
+        GLuint scale;
+        GLuint aspect;
+    } locs;
 };
 
 static void setup_buffers(struct physgl *phgl) {
@@ -86,7 +104,7 @@ static void setup_buffers(struct physgl *phgl) {
 
     glGenBuffers(1, &phgl->base_fig.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, phgl->base_fig.vbo);
-    GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
+    const GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glEnableVertexAttribArray(0);
@@ -112,18 +130,12 @@ static void setup_buffers(struct physgl *phgl) {
 
     glGenBuffers(1, &phgl->base_fig.ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, phgl->base_fig.ebo);
-    GLuint indices[] = {0, 1, 2, 2, 3, 0};
+    const GLuint indices[] = {0, 1, 2, 2, 3, 0};
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glBindVertexArray(0);
 }
 
-struct physgl *physgl_init(void) {
-    GLenum err = glewInit();
-    if (err != GLEW_OK) {
-        fprintf(stderr, "GLEW error: %s\n", glewGetErrorString(err));
-        return NULL;
-    }
-
+static int physgl_init(struct physgl *phgl) {
     printf("OpenGL version: %s\n", glGetString(GL_VERSION));
     printf("GLSL version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
     printf("Vendor: %s\n", glGetString(GL_VENDOR));
@@ -131,25 +143,31 @@ struct physgl *physgl_init(void) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    struct physgl *phgl = calloc(1, sizeof(struct physgl));
-    if (phgl != NULL) {
-        
-        setup_buffers(phgl);
+    setup_buffers(phgl);
 
-        GLuint vs = compile_shader(GL_VERTEX_SHADER, (const char *)physgl_vertex_shader_src);
-        GLuint fs = compile_shader(GL_FRAGMENT_SHADER, (const char *)physgl_fragment_shader_src);
-        if (!vs || !fs) {
-            physgl_destroy(phgl);
-            return NULL;
-        }
+    phgl->shader_program =
+        link_program((const char *)physgl_vertex_shader_src, (const char *)physgl_fragment_shader_src);
+    if (!phgl->shader_program) {
+        return -1;
+    }
 
-        phgl->shader_program = link_program(vs, fs);
-        if (!phgl->shader_program) {
-            physgl_destroy(phgl);
-            return NULL;
-        }
-        phgl->count = 0;
-        phgl->window_aspect = (float)16 / 9;
+    phgl->locs.aspect = glGetUniformLocation(phgl->shader_program, "aspect");
+    phgl->locs.center = glGetUniformLocation(phgl->shader_program, "center");
+    phgl->locs.scale = glGetUniformLocation(phgl->shader_program, "scale");
+
+    phgl->count = 0;
+    phgl->window_aspect = (float)16 / 9;
+    return 0;
+}
+
+struct physgl *physgl_create(void) {
+    struct physgl *phgl = calloc(1, sizeof(*phgl));
+    if (!phgl)
+        return NULL;
+
+    if (physgl_init(phgl) < 0) {
+        free(phgl);
+        return NULL;
     }
     return phgl;
 }
@@ -167,7 +185,7 @@ void physgl_preview_render(struct physgl *phgl, double center_x, double center_y
     glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, phgl->radii.vbo);
-    GLfloat radii[2] = {0.3, 0.06};
+    GLfloat radii[2] = {0.3, 0.05};
     glBufferData(GL_ARRAY_BUFFER, sizeof(radii), radii, GL_DYNAMIC_DRAW);
 
     glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -176,20 +194,16 @@ void physgl_preview_render(struct physgl *phgl, double center_x, double center_y
 
     glUseProgram(phgl->shader_program);
 
-    glUniform2f(
-        glGetUniformLocation(phgl->shader_program, "center"),
-        (GLfloat)center_x,
-        (GLfloat)center_y
-    );
-    glUniform1f(glGetUniformLocation(phgl->shader_program, "scale"), (GLfloat)scale);
-    glUniform1f(glGetUniformLocation(phgl->shader_program, "aspect"), (GLfloat)phgl->window_aspect);
+    glUniform2f(phgl->locs.center, center_x, center_y);
+    glUniform1f(phgl->locs.scale, scale);
+    glUniform1f(phgl->locs.aspect, phgl->window_aspect);
 
     glDrawElementsInstanced(GL_TRIANGLES, 3 * 2, GL_UNSIGNED_INT, 0, 2);
     check_gl_error("physgl_preview_render");
 }
 
-void physgl_on_resize(struct physgl *phgl, int width, int height) {
-    phgl->window_aspect = (float)width / height;
+void physgl_on_resize(struct physgl *phgl, double aspect_ratio) {
+    phgl->window_aspect = aspect_ratio;
 }
 
 void physgl_destroy(struct physgl *phgl) {
