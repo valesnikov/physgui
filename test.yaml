@@ -1,13 +1,11 @@
-products:
-- name: Laptop
-  price: 999.99
-- name: Mouse
-  price: 25.50
-categories:
-- electronics
-- accessories
-arr1:
-- 1
-- 2
-arr2: [3, 4]
-...
+phys:
+  gravity: true
+  objs:
+    - pos: [0.2, 0]
+      mov: [2, 2]
+      mass: 1
+      radius: 0.2
+    - pos: [-0.2, 0]
+      mov: [-2, 2]
+      mass: 1
+      radius: 0.2

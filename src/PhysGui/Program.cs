@@ -12,6 +12,11 @@ namespace PhysGui
         [STAThread]
         public static void Main(string[] args)
         {
+
+            var a = new PhysicsConfigParser();
+            a.ParseFile("test.yaml");
+            using var phys = a.createPhysicsSystem();
+
             Application.Init();
 
             var app = new Application("org.physgui.physgui", GLib.ApplicationFlags.None);

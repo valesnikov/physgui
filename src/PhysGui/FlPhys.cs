@@ -199,6 +199,11 @@ namespace PhysGui
         public Vector AccelerationOfGravity => new Vector(LibFlPhys.phys_ref_accel_of_gravity(_nativePtr));
         public Vector Wind => new Vector(LibFlPhys.phys_ref_wind(_nativePtr));
 
+        public bool IsGravityEnabled
+        {
+            get => LibFlPhys.phys_get_is_gravity(_nativePtr) == 0;
+            set => LibFlPhys.phys_set_is_gravity(_nativePtr, value ? 1 : 0);
+        }
 
         private class ObjectList : IReadOnlyList<PhysicalObject>
         {
@@ -237,12 +242,6 @@ namespace PhysGui
         }
 
         public IReadOnlyList<PhysicalObject> Objects => new ObjectList(_nativePtr);
-
-        public bool IsGravityEnabled
-        {
-            get => LibFlPhys.phys_get_is_gravity(_nativePtr) == 0;
-            set => LibFlPhys.phys_set_is_gravity(_nativePtr, value ? 1 : 0);
-        }
 
         public double Time => LibFlPhys.phys_get_time(_nativePtr);
 

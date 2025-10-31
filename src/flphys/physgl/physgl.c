@@ -104,7 +104,7 @@ static void setup_buffers(struct physgl *phgl) {
 
     glGenBuffers(1, &phgl->base_fig.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, phgl->base_fig.vbo);
-    const GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f};
+    const GLfloat vertices[] = {-1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f}; //square
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
     glEnableVertexAttribArray(0);
@@ -207,10 +207,6 @@ void physgl_on_resize(struct physgl *phgl, double aspect_ratio) {
 }
 
 void physgl_destroy(struct physgl *phgl) {
-    glUseProgram(0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     if (phgl->vao) {
         glDeleteVertexArrays(1, &phgl->vao);
     }

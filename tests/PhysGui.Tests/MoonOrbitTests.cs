@@ -34,7 +34,7 @@ public class MoonOrbitTests
         rock.Radius = 0.03;
         rock.Position.Y = MOON_RADIUS + HEIGHT;
         rock.Movement.X = FirstCosmicVelocity(MOON_MASS, MOON_RADIUS + HEIGHT);
-
+        Console.WriteLine(rock.Movement.X);
         double expectedTime = (2 * PhysGui.LibFlPhys.PHYS_PI * (MOON_RADIUS + HEIGHT)) / rock.Movement.Length;
 
         long steps = (long)(expectedTime / ACCURACY / 4);
