@@ -190,6 +190,8 @@ namespace PhysGui
                 throw new InvalidOperationException("Failed to create physics system");
         }
 
+        public IntPtr Ptr() => _nativePtr;
+    
         public double Density
         {
             get => LibFlPhys.phys_get_density(_nativePtr);

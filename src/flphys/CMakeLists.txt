@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.12)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-add_compile_options(-Wall -Wextra -Wpedantic -std=c99 -pedantic)
-set(CMAKE_C_STANDARD 99)
+add_compile_options(-Wall -Wextra -Wpedantic -std=c11 -pedantic)
+set(CMAKE_C_STANDARD 11)
 
 project(
     flphys

@@ -1,11 +1,10 @@
 phys:
   gravity: true
   objs:
-    - pos: [0.2, 0]
-      mov: [2, 2]
+    - pos: [0, 0]
+      mass: 1e11
+      radius: 0.06
+    - pos: [1, 0]
+      mov: [0, 2]
       mass: 1
-      radius: 0.2
-    - pos: [-0.2, 0]
-      mov: [-2, 2]
-      mass: 1
-      radius: 0.2
+      radius: 0.03

@@ -1,5 +1,4 @@
-#ifndef LIBFLPHYS_TYPES_H
-#define LIBFLPHYS_TYPES_H
+#pragma once
 
 struct pvec {
     double x; // m | m/s | N
@@ -26,4 +25,3 @@ struct phys {
     struct pobj objects[];        // objects array
 };
 
-#endif

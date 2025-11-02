@@ -1,5 +1,4 @@
-#ifndef LIBFLPHYS_H
-#define LIBFLPHYS_H
+#pragma once
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -65,6 +64,4 @@ FLPHYS_EXPORT void phys_destroy(struct phys *phys);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

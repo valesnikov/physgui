@@ -48,9 +48,10 @@ namespace PhysGui
         private readonly IDeserializer _deserializer;
         private Root? root;
 
-        public PhysicsConfigParser()
+        public PhysicsConfigParser(string filePath)
         {
             _deserializer = new DeserializerBuilder().Build();
+            ParseFile(filePath);
         }
 
         private Root Parse(string yamlContent)
@@ -60,7 +61,7 @@ namespace PhysGui
             return root;
         }
 
-        public void ParseFile(string filePath)
+        private void ParseFile(string filePath)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"Configuration file not found: {filePath}");

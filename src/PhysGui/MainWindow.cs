@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 
@@ -9,8 +10,7 @@ namespace PhysGui
         [UI] private Button? stopButton = null;
         [UI] private GLArea? glArea = null;
 
-        private Drawer drawer = new Drawer();
-        private int _counter;
+        private Scene scene;
 
         public MainWindow() : this(new Builder("MainWindow.glade")) { }
 
@@ -25,35 +25,50 @@ namespace PhysGui
                 throw new InvalidOperationException("glArea not found in Glade file");
             DeleteEvent += Window_DeleteEvent;
 
+            scene = new Scene(glArea!);
+            var cfg = new PhysicsConfigParser("test.yaml");
+            var phys = cfg.createPhysicsSystem();
+            var physgl = new PhysGl(phys);
+            scene.AddDrawable(physgl);
 
-            glArea.Events |= Gdk.EventMask.ButtonPressMask
-               | Gdk.EventMask.ButtonReleaseMask
-               | Gdk.EventMask.PointerMotionMask
-               | Gdk.EventMask.ScrollMask
-               | Gdk.EventMask.TouchpadGestureMask;
-
-            glArea.SetRequiredVersion(3, 3);
-
-            glArea.Realized += drawer.OnGLRealized;
-            glArea.Render += drawer.OnGLRender;
-            glArea.Resize += drawer.OnGLResize;
-            glArea.ButtonPressEvent += drawer.OnMouseDown;
-            glArea.ButtonReleaseEvent += drawer.OnMouseUp;
-            glArea.MotionNotifyEvent += drawer.OnMouseMove;
-            glArea.ScrollEvent += drawer.OnMouseScroll;
-
-            var pinch = new Gtk.GestureZoom(glArea);
-            pinch.ScaleChanged += drawer.OnTouchpadScroll;
+            scene.OnRealized += () =>
+            {
+                var t = new Thread(() => GameLoop(phys, physgl))
+                {
+                    IsBackground = true
+                };
+                t.Start();
+            };
         }
+
+        private void GameLoop(PhysicsSystem phys, PhysGl physgl)
+        {
+            const long targetFPS = 100;
+            const double targetFrameTime = 1000.0 / targetFPS;
+            long accCoef = 10000;
+
+            while (true)
+            {
+                Stopwatch stopwatch = Stopwatch.StartNew();
+                //----------------------------------------------
+                phys.Run((1.0 / targetFPS) / accCoef, accCoef);
+                physgl.Update();
+
+                //----------------------------------------------
+                stopwatch.Stop();
+                double elapsed = stopwatch.Elapsed.TotalMilliseconds;
+                double remainingTime = targetFrameTime - elapsed;
+                if (remainingTime > 0)
+                    Thread.Sleep((int)remainingTime);
+            }
+
+        }
+
+
 
         private void Window_DeleteEvent(object sender, DeleteEventArgs a)
         {
             Application.Quit();
-        }
-
-        private void Button1_Clicked(object sender, EventArgs a)
-        {
-            _counter++;
         }
     }
 }
