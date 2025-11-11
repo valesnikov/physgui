@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "../phys/phys.h"
+#include "phys.h"
 
 #ifdef __cplusplus
 extern "C" {

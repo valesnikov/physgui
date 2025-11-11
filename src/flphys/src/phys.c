@@ -62,6 +62,14 @@ double pobj_get_mass(const struct pobj *pobj) {
     return pobj->mass;
 }
 
+double pobj_get_bounce(const struct pobj *pobj) {
+    return pobj->bounce;
+}
+
+void pobj_set_bounce(struct pobj *pobj, double bounce) {
+    pobj->bounce = bounce;
+}
+
 void pobj_set_mass(struct pobj *pobj, double mass) {
     pobj->mass = mass;
 }
@@ -207,6 +215,27 @@ static int compute_gravity(struct phys *phys) {
     }
     return PHYS_RES_OK;
 }
+
+// static void compute_collision(struct phys *phys) {
+//     for (int i = 0; i < phys->objects_num - 1; i++) {
+//         for (int j = i + 1; j < phys->objects_num; j++) {
+//             struct pobj *const obj_a = &phys->objects[i];
+//             struct pobj *const obj_b = &phys->objects[j];
+
+//             struct pvec distance_vector = {
+//                 .x = obj_a->pos.x - obj_b->pos.x,
+//                 .y = obj_a->pos.y - obj_b->pos.y,
+//             };
+
+//             double distance = hypot(distance_vector.x, distance_vector.y);
+//             double collision = obj_a->radius + obj_b->radius - distance;
+//             if (collision > 0) {
+//                 const double e = (obj_a->bounce + obj_b->bounce) / 2;
+                
+//             }
+//         }
+//     }
+// }
 
 int phys_run(struct phys *phys, double step_time, long steps) {
     int err;

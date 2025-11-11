@@ -70,6 +70,12 @@ namespace PhysGui
         public static partial void pobj_set_mass(IntPtr pobj, double mass);
 
         [LibraryImport(LibraryName)]
+        public static partial double pobj_get_bounce(IntPtr pobj);
+
+        [LibraryImport(LibraryName)]
+        public static partial void pobj_set_bounce(IntPtr pobj, double bounce); // 0 - 1
+
+        [LibraryImport(LibraryName)]
         public static partial double pobj_get_radius(IntPtr pobj);
 
         [LibraryImport(LibraryName)]
@@ -154,6 +160,12 @@ namespace PhysGui
             set => LibFlPhys.pobj_set_mass(_nativePtr, value);
         }
 
+        public double Bounce
+        {
+            get => LibFlPhys.pobj_get_bounce(_nativePtr);
+            set => LibFlPhys.pobj_set_bounce(_nativePtr, value);
+        }
+
         public double Radius
         {
             get => LibFlPhys.pobj_get_radius(_nativePtr);
@@ -191,7 +203,7 @@ namespace PhysGui
         }
 
         public IntPtr Ptr() => _nativePtr;
-    
+
         public double Density
         {
             get => LibFlPhys.phys_get_density(_nativePtr);

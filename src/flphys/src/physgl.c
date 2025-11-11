@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../phys/types.h"
+#include "types.h"
 
 // from generated
 extern const unsigned char physgl_vertex_shader_src[];

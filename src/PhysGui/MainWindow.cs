@@ -6,9 +6,9 @@ namespace PhysGui
 {
     class MainWindow : Window
     {
-        [UI] private Button? startButton = null;
-        [UI] private Button? stopButton = null;
-        [UI] private GLArea? glArea = null;
+        [UI] private Button startButton;
+        [UI] private Button stopButton;
+        [UI] private GLArea glArea;
 
         private Scene scene;
 
@@ -51,6 +51,7 @@ namespace PhysGui
             {
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 //----------------------------------------------
+
                 phys.Run((1.0 / targetFPS) / accCoef, accCoef);
                 physgl.Update();
 

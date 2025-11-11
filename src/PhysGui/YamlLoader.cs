@@ -17,6 +17,9 @@ namespace PhysGui
             [YamlMember(Alias = "mass")]
             public double Mass { get; set; } // required
 
+            [YamlMember(Alias = "bounce")]
+            public double Bounce { get; set; } = 0;
+
             [YamlMember(Alias = "radius")]
             public double Radius { get; set; } // required
         }
@@ -75,7 +78,7 @@ namespace PhysGui
                 throw new InvalidDataException("Required phys section");
 
             var config = root.Phys;
-            
+
             if (config.Objs == null || config.Objs.Count == 0)
                 throw new InvalidDataException("Objects list (objs) cannot be empty");
 
@@ -92,6 +95,9 @@ namespace PhysGui
 
                 if (obj.Mass <= 0)
                     throw new InvalidDataException($"Object {i}: field 'mass' must be a non-negative number");
+
+                if (obj.Bounce < 0 || obj.Bounce > 1)
+                    throw new InvalidDataException($"Object {i}: field 'bounce' must be in [0, 1]");
 
                 if (obj.Radius <= 0)
                     throw new InvalidDataException($"Object {i}: field 'radius' must be a non-negative number");

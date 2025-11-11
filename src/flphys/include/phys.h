@@ -45,6 +45,8 @@ FLPHYS_EXPORT double pobj_get_mass(const struct pobj *pobj);
 FLPHYS_EXPORT void pobj_set_mass(struct pobj *pobj, double mass);
 FLPHYS_EXPORT double pobj_get_radius(const struct pobj *pobj);
 FLPHYS_EXPORT void pobj_set_radius(struct pobj *obj, double radius);
+FLPHYS_EXPORT double pobj_get_bounce(const struct pobj *pobj);
+FLPHYS_EXPORT void pobj_set_bounce(struct pobj *pobj, double bounce); // 0 - 1
 
 // Phys
 struct phys;
