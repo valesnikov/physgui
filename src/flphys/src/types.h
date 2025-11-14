@@ -13,6 +13,7 @@ struct pobj {
     double area;       // m^2
     double volume;     // m^3
     double bounce;     // coefficient of restitution (0..1)
+    unsigned char color[3];
     struct pvec force; // N
 };
 

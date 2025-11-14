@@ -76,6 +76,9 @@ namespace PhysGui
         public static partial void pobj_set_bounce(IntPtr pobj, double bounce); // 0 - 1
 
         [LibraryImport(LibraryName)]
+        public static partial IntPtr pobj_ref_color(IntPtr pobj);
+
+        [LibraryImport(LibraryName)]
         public static partial double pobj_get_radius(IntPtr pobj);
 
         [LibraryImport(LibraryName)]
@@ -164,6 +167,23 @@ namespace PhysGui
         {
             get => LibFlPhys.pobj_get_bounce(_nativePtr);
             set => LibFlPhys.pobj_set_bounce(_nativePtr, value);
+        }
+
+        public (byte r, byte g, byte b) Color
+        {
+            get
+            {
+                IntPtr colorPtr = LibFlPhys.pobj_ref_color(_nativePtr);
+                byte[] color = new byte[3];
+                Marshal.Copy(colorPtr, color, 0, 3);
+                return (color[0], color[1], color[2]);
+            }
+            set
+            {
+                IntPtr colorPtr = LibFlPhys.pobj_ref_color(_nativePtr);
+                byte[] color = { value.r, value.g, value.b };
+                Marshal.Copy(color, 0, colorPtr, 3);
+            }
         }
 
         public double Radius

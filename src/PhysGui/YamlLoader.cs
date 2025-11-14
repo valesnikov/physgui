@@ -1,4 +1,6 @@
 using YamlDotNet.Serialization;
+using System.Drawing;
+
 
 namespace PhysGui
 {
@@ -18,10 +20,13 @@ namespace PhysGui
             public double Mass { get; set; } // required
 
             [YamlMember(Alias = "bounce")]
-            public double Bounce { get; set; } = 0;
+            public double Bounce { get; set; } = 1;
 
             [YamlMember(Alias = "radius")]
             public double Radius { get; set; } // required
+
+            [YamlMember(Alias = "color")]
+            public string Color { get; set; } = "#ffffff";
         }
 
         private class PhysicsConfigRep
@@ -93,8 +98,8 @@ namespace PhysGui
                 if (obj.Pos == null || obj.Pos.Length != 2)
                     throw new InvalidDataException($"Object {i}: field 'pos' is required and must contain 2 values");
 
-                if (obj.Mass <= 0)
-                    throw new InvalidDataException($"Object {i}: field 'mass' must be a non-negative number");
+                if (obj.Mass == 0)
+                    throw new InvalidDataException($"Object {i}: field 'mass' must be a non-zero number");
 
                 if (obj.Bounce < 0 || obj.Bounce > 1)
                     throw new InvalidDataException($"Object {i}: field 'bounce' must be in [0, 1]");
@@ -151,6 +156,10 @@ namespace PhysGui
                 pobj.Position.Y = robj.Pos[1];
                 pobj.Movement.X = robj.Mov[0];
                 pobj.Movement.Y = robj.Mov[1];
+                pobj.Bounce = robj.Bounce;
+
+                Color color = ColorTranslator.FromHtml(robj.Color);
+                pobj.Color = (color.R, color.G, color.B);
             }
             return phys;
         }

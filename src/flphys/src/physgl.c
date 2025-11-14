@@ -186,9 +186,9 @@ void physgl_update(struct physgl *phgl) {
             phgl->pos.data[i][0] = obj->pos.x;
             phgl->pos.data[i][1] = obj->pos.y;
             phgl->radii.data[i] = obj->radius;
-            phgl->colors.data[i][0] = 1;
-            phgl->colors.data[i][1] = 1;
-            phgl->colors.data[i][2] = 1;
+            phgl->colors.data[i][0] = obj->color[0] / 255.f;
+            phgl->colors.data[i][1] = obj->color[1] / 255.f;
+            phgl->colors.data[i][2] = obj->color[2] / 255.f;
         }
 
         atomic_flag_test_and_set(&phgl->phys_outdated);
@@ -225,7 +225,7 @@ void physgl_render(struct physgl *phgl, double center_x, double center_y, double
         atomic_flag_clear(&phgl->phys_outdated);
     }
 
-    glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClearColor(9.019607843137255e-2, 9.019607843137255e-2, 9.019607843137255e-2, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(phgl->shader_program);
 

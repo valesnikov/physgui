@@ -25,7 +25,7 @@ extern "C" {
 #define PHYS_RES_ERR_ZERO_DIST -2
 #define PHYS_RES_ERR_ZERO_MASS -3
 
-const char *phys_strerror(int result);
+FLPHYS_EXPORT const char *phys_strerror(int result);
 
 // Vector
 struct pvec;
@@ -47,6 +47,7 @@ FLPHYS_EXPORT double pobj_get_radius(const struct pobj *pobj);
 FLPHYS_EXPORT void pobj_set_radius(struct pobj *obj, double radius);
 FLPHYS_EXPORT double pobj_get_bounce(const struct pobj *pobj);
 FLPHYS_EXPORT void pobj_set_bounce(struct pobj *pobj, double bounce); // 0 - 1
+FLPHYS_EXPORT unsigned char *pobj_ref_color(struct pobj *pobj);       // ref to uchar[3]
 
 // Phys
 struct phys;

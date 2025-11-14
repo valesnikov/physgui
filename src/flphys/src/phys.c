@@ -1,10 +1,13 @@
 #include "phys.h"
-#include "types.h"
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#include "types.h"
+#include "vec_ops.h"
 
 const char *phys_strerror(int result) {
     switch (result) {
@@ -22,8 +25,7 @@ const char *phys_strerror(int result) {
 }
 
 void pvec_set_scs(struct pvec *pvec, double len, double angle) {
-    pvec->x = len * cos(angle);
-    pvec->y = len * sin(angle);
+    *pvec = scs(len, angle);
 }
 
 double pvec_get_x(const struct pvec *pvec) {
@@ -43,11 +45,11 @@ void pvec_set_y(struct pvec *pvec, double y) {
 }
 
 double pvec_get_len(const struct pvec *pvec) {
-    return sqrt(pvec->x * pvec->x + pvec->y * pvec->y);
+    return length(*pvec);
 }
 
 double pvec_get_angle(const struct pvec *pvec) {
-    return atan2(pvec->y, pvec->x);
+    return angle(*pvec);
 }
 
 struct pvec *pobj_ref_pos(struct pobj *pobj) {
@@ -70,6 +72,10 @@ void pobj_set_bounce(struct pobj *pobj, double bounce) {
     pobj->bounce = bounce;
 }
 
+unsigned char *pobj_ref_color(struct pobj *pobj) {
+    return pobj->color;
+}
+
 void pobj_set_mass(struct pobj *pobj, double mass) {
     pobj->mass = mass;
 }
@@ -82,24 +88,6 @@ void pobj_set_radius(struct pobj *obj, double radius) {
     obj->radius = radius;
     obj->area = PHYS_PI * radius * radius;
     obj->volume = (4.0 / 3.0) * PHYS_PI * radius * radius * radius;
-}
-
-static int pobj_run(struct pobj *obj, double time) {
-    if (obj->mass == 0) {
-        return PHYS_RES_ERR_ZERO_MASS;
-    }
-
-    const struct pvec acceleration = {
-        .x = obj->force.x / obj->mass,
-        .y = obj->force.y / obj->mass,
-    };
-
-    obj->pos.x += (obj->mov.x + acceleration.x * time * 0.5) * time;
-    obj->pos.y += (obj->mov.y + acceleration.y * time * 0.5) * time;
-
-    obj->mov.x += acceleration.x * time;
-    obj->mov.y += acceleration.y * time;
-    return PHYS_RES_OK;
 }
 
 struct phys *phys_create(int objects_num) {
@@ -157,85 +145,95 @@ double phys_get_time(const struct phys *phys) {
     return phys->time;
 }
 
+static void compute_collision(struct phys *phys) {
+    for (int i = 0; i < phys->objects_num - 1; i++) {
+        for (int j = i + 1; j < phys->objects_num; j++) {
+
+            struct pobj *obj1 = &phys->objects[i];
+            struct pobj *obj2 = &phys->objects[j];
+
+            struct pvec delta_pos = diff(obj2->pos, obj1->pos);
+            double dist = length(delta_pos);
+            double penetration = obj1->radius + obj2->radius - dist;
+
+            if (penetration > 0) {
+                struct pvec N = normalize(delta_pos);
+                obj1->pos =
+                    sum(obj1->pos, scale(N, -penetration * obj2->mass / (obj1->mass + obj2->mass)));
+
+                obj2->pos =
+                    sum(obj2->pos, scale(N, penetration * obj1->mass / (obj1->mass + obj2->mass)));
+
+                double v1n = dot(obj1->mov, N);
+                double v2n = dot(obj2->mov, N);
+
+                double vr = v1n - v2n;
+
+                double m1 = obj1->mass;
+                double m2 = obj2->mass;
+
+                double e = obj1->bounce * obj2->bounce;
+
+                double v1nAfter = v1n - (1.0 + e) * (m2 / (m1 + m2)) * vr;
+                double v2nAfter = v2n + (1.0 + e) * (m1 / (m1 + m2)) * vr;
+
+                obj1->mov = sum(obj1->mov, scale(N, v1nAfter - v1n));
+                obj2->mov = sum(obj2->mov, scale(N, v2nAfter - v2n));
+            }
+        }
+    }
+}
+
+static int pobj_run(struct pobj *obj, double time) {
+    if (obj->mass == 0) {
+        return PHYS_RES_ERR_ZERO_MASS;
+    }
+    struct pvec accel = scale(obj->force, 1.0 / obj->mass);
+    obj->pos = sum(obj->pos, scale(sum(obj->mov, scale(accel, time * 0.5)), time));
+    obj->mov = sum(obj->mov, scale(accel, time));
+    return PHYS_RES_OK;
+}
+
 static void compute_object_force(const struct phys *phys, struct pobj *obj) {
-    obj->force.x = phys->accel_of_gravity.x * obj->mass;
-    obj->force.y = phys->accel_of_gravity.y * obj->mass;
+    obj->force = scale(phys->accel_of_gravity, obj->mass);
 
     if (phys->density > 0) {
-        const struct pvec relative_mov = {
-            obj->mov.x - phys->wind.x,
-            obj->mov.y - phys->wind.y,
-        };
-
-        const double relative_speed_square =
-            relative_mov.x * relative_mov.x + relative_mov.y + relative_mov.y;
-
+        struct pvec relative_mov = diff(obj->mov, phys->wind);
+        double relative_speed_square = dot(relative_mov, relative_mov);
         if (relative_speed_square > 0) {
-            const double air_resistance_force =
+            double air_resistance_force =
                 obj->area * phys->density * relative_speed_square * 0.5 * PHYS_BALL_DRAG_COEF;
 
-            const double k = air_resistance_force / sqrt(relative_speed_square);
-            obj->force.x -= relative_mov.x * k;
-            obj->force.y -= relative_mov.y * k;
+            double k = air_resistance_force / sqrt(relative_speed_square);
+            obj->force = diff(obj->force, scale(relative_mov, k));
         }
-
-        obj->force.x -= phys->accel_of_gravity.x * obj->volume * phys->density;
-        obj->force.y -= phys->accel_of_gravity.y * obj->volume * phys->density;
+        obj->force = diff(obj->force, scale(phys->accel_of_gravity, obj->volume * phys->density));
     }
 }
 
 static int compute_gravity(struct phys *phys) {
     for (int i = 0; i < phys->objects_num - 1; i++) {
         for (int j = i + 1; j < phys->objects_num; j++) {
-            struct pobj *const obj_a = &phys->objects[i];
-            struct pobj *const obj_b = &phys->objects[j];
+            struct pobj *obj_a = &phys->objects[i];
+            struct pobj *obj_b = &phys->objects[j];
 
-            const struct pvec distance_vector = {
-                .x = obj_a->pos.x - obj_b->pos.x,
-                .y = obj_a->pos.y - obj_b->pos.y,
-            };
-
-            const double distance_square =
-                distance_vector.x * distance_vector.x + distance_vector.y * distance_vector.y;
+            struct pvec dist_v = diff(obj_a->pos, obj_b->pos);
+            double distance_square = dot(dist_v, dist_v);
 
             if (distance_square == 0) {
                 return PHYS_RES_ERR_ZERO_DIST;
             }
 
-            const double gravity_force = PHYS_G * obj_a->mass * obj_b->mass / distance_square;
+            double gravity_force = PHYS_G * obj_a->mass * obj_b->mass / distance_square;
 
-            const double k = gravity_force / sqrt(distance_square);
+            double k = gravity_force / sqrt(distance_square);
 
-            obj_a->force.x -= distance_vector.x * k;
-            obj_a->force.y -= distance_vector.y * k;
-
-            obj_b->force.x += distance_vector.x * k;
-            obj_b->force.y += distance_vector.y * k;
+            obj_a->force = diff(obj_a->force, scale(dist_v, k));
+            obj_b->force = sum(obj_b->force, scale(dist_v, k));
         }
     }
     return PHYS_RES_OK;
 }
-
-// static void compute_collision(struct phys *phys) {
-//     for (int i = 0; i < phys->objects_num - 1; i++) {
-//         for (int j = i + 1; j < phys->objects_num; j++) {
-//             struct pobj *const obj_a = &phys->objects[i];
-//             struct pobj *const obj_b = &phys->objects[j];
-
-//             struct pvec distance_vector = {
-//                 .x = obj_a->pos.x - obj_b->pos.x,
-//                 .y = obj_a->pos.y - obj_b->pos.y,
-//             };
-
-//             double distance = hypot(distance_vector.x, distance_vector.y);
-//             double collision = obj_a->radius + obj_b->radius - distance;
-//             if (collision > 0) {
-//                 const double e = (obj_a->bounce + obj_b->bounce) / 2;
-                
-//             }
-//         }
-//     }
-// }
 
 int phys_run(struct phys *phys, double step_time, long steps) {
     int err;
@@ -253,6 +251,7 @@ int phys_run(struct phys *phys, double step_time, long steps) {
                 return err;
             }
         }
+        compute_collision(phys);
     }
     phys->time += step_time * steps;
     return PHYS_RES_OK;

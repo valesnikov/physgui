@@ -1,10 +1,50 @@
 phys:
-  gravity: true
   objs:
-    - pos: [0, -0.4]
-      mass: 1e11
-      radius: 0.06
-    - pos: [0, 0.6]
-      mov: [1.5, 0]
+    # cue ball
+    - pos: [-1.2, 0]
+      mov: [1, 0]
       mass: 1
-      radius: 0.03
+      radius: 0.1
+      color: '#FFFFFF'
+      bounce: 0.8
+
+    # rack – triangle of 6 balls
+
+    # row 1
+    - pos: [0, 0]
+      mass: 1
+      radius: 0.1
+      color: '#E91E63'
+      bounce: 0.8
+
+    # row 2
+    - pos: [0.183, 0.11]
+      mass: 1
+      radius: 0.1
+      color: '#9C27B0'
+      bounce: 0.8
+
+    - pos: [0.183, -0.11]
+      mass: 1
+      radius: 0.1
+      color: '#3F51B5'
+      bounce: 0.8
+
+    # row 3
+    - pos: [0.366, 0.21]
+      mass: 1
+      radius: 0.1
+      color: '#03A9F4'
+      bounce: 0.8
+
+    - pos: [0.366, 0]
+      mass: 1
+      radius: 0.1
+      color: '#4CAF50'
+      bounce: 0.8
+
+    - pos: [0.366, -0.21]
+      mass: 1
+      radius: 0.1
+      color: '#FFC107'
+      bounce: 0.8
