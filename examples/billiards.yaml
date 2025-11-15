@@ -1,0 +1,106 @@
+phys:
+  objs:
+    # cue ball
+    - pos: [-2, 0]
+      mov: [2, 0]
+      mass: 1
+      radius: 0.1
+      color: '#FFFFFF'
+      bounce: 0.8
+
+    # rack – triangle of 15 balls
+
+    # row 1
+    - pos: [0, 0]
+      mass: 1
+      radius: 0.1
+      color: '#FFB7B2'
+      bounce: 0.8
+
+    # row 2
+    - pos: [0.183, 0.11]
+      mass: 1
+      radius: 0.1
+      color: '#A2F2D5'
+      bounce: 0.8
+
+    - pos: [0.183, -0.11]
+      mass: 1
+      radius: 0.1
+      color: '#C8B4E5'
+      bounce: 0.8
+
+    # row 3
+    - pos: [0.366, 0.21]
+      mass: 1
+      radius: 0.1
+      color: '#FFF9B2'
+      bounce: 0.8
+
+    - pos: [0.366, 0]
+      mass: 1
+      radius: 0.1
+      color: '#A2D2FF'
+      bounce: 0.8
+
+    - pos: [0.366, -0.21]
+      mass: 1
+      radius: 0.1
+      color: '#FFD8B2'
+      bounce: 0.8
+
+    # row 4
+    - pos: [0.549, -0.33]
+      mass: 1
+      radius: 0.1
+      color: '#D8B4F8'
+      bounce: 0.8
+
+    - pos: [0.549, -0.11]
+      mass: 1
+      radius: 0.1
+      color: '#A2F2E5'
+      bounce: 0.8
+
+    - pos: [0.549, 0.11]
+      mass: 1
+      radius: 0.1
+      color: '#FFB7E5'
+      bounce: 0.8
+
+    - pos: [0.549, 0.33]
+      mass: 1
+      radius: 0.1
+      color: '#C8F5A2'
+      bounce: 0.8
+
+    # row 5
+    - pos: [0.732, 0.42]
+      mass: 1
+      radius: 0.1
+      color: '#FFF2B2'
+      bounce: 0.8
+
+    - pos: [0.732, 0.21]
+      mass: 1
+      radius: 0.1
+      color: '#B2E5FF'
+      bounce: 0.8
+
+    - pos: [0.732, 0]
+      mass: 1
+      radius: 0.1
+      color: '#E5B2F2'
+      bounce: 0.8
+
+    - pos: [0.732, -0.21]
+      mass: 1
+      radius: 0.1
+      color: '#B2F2D8'
+      bounce: 0.8
+
+    - pos: [0.732, -0.42]
+      mass: 1
+      radius: 0.1
+      color: '#FFE5B2'
+      bounce: 0.8

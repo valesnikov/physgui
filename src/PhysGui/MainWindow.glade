@@ -2,6 +2,10 @@
 <!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.18"/>
+  <object class="GtkAdjustment" id="speed_adj">
+    <property name="upper">1</property>
+    <property name="value">0.5</property>
+  </object>
   <object class="GtkWindow" id="MainWindow">
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Example Window</property>
@@ -29,8 +33,8 @@
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="margin-left">2</property>
-            <property name="margin-right">2</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
             <property name="margin-top">2</property>
             <property name="margin-bottom">2</property>
             <child>
@@ -39,6 +43,8 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -52,11 +58,74 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
                 <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="restartButton">
+                <property name="label" translatable="yes">Restart</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale" id="speedScale">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+                <property name="adjustment">speed_adj</property>
+                <property name="restrict-to-fill-level">False</property>
+                <property name="draw-value">False</property>
+                <property name="value-pos">left</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="speedLabel">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <property name="label" translatable="yes">1.00</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="openButton">
+                <property name="label" translatable="yes">Open</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="margin-start">2</property>
+                <property name="margin-end">2</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
               </packing>
             </child>
           </object>
@@ -65,9 +134,6 @@
             <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
       </object>
     </child>

@@ -174,8 +174,8 @@ static void compute_collision(struct phys *phys) {
 
                 double e = obj1->bounce * obj2->bounce;
 
-                double v1nAfter = v1n - (1.0 + e) * (m2 / (m1 + m2)) * vr;
-                double v2nAfter = v2n + (1.0 + e) * (m1 / (m1 + m2)) * vr;
+                double v1nAfter = v1n - (1 + e) * (m2 / (m1 + m2)) * vr;
+                double v2nAfter = v2n + (1 + e) * (m1 / (m1 + m2)) * vr;
 
                 obj1->mov = sum(obj1->mov, scale(N, v1nAfter - v1n));
                 obj2->mov = sum(obj2->mov, scale(N, v2nAfter - v2n));

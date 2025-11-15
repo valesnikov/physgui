@@ -8,13 +8,13 @@ namespace PhysGui
         private const string LibraryName = "flphys";
 
         [LibraryImport(LibraryName)]
-        public static partial IntPtr physgl_create(IntPtr phys);
+        public static partial IntPtr physgl_create();
 
         [LibraryImport(LibraryName)]
         public static partial void physgl_set_phys(IntPtr phgl, IntPtr phys);
 
         [LibraryImport(LibraryName)]
-        public static partial void physgl_update(IntPtr phgl);
+        public static partial void physgl_update(IntPtr phgl, IntPtr phys);
 
         [LibraryImport(LibraryName)]
         public static partial void physgl_on_resize(IntPtr phgl, double aspect_ratio);
@@ -29,23 +29,23 @@ namespace PhysGui
     public sealed class PhysGl : IDrawable 
     {
         private IntPtr _handle = IntPtr.Zero;
-        private PhysicsSystem phys;
 
-        public PhysGl(PhysicsSystem phys)
+
+        public PhysGl()
         {
-            this.phys = phys;
         }
 
         public void Realized()
         {
-            _handle = LibFlPhysGl.physgl_create(phys.Ptr());
+            _handle = LibFlPhysGl.physgl_create();
             if (_handle == IntPtr.Zero)
                 throw new InvalidOperationException("Failed to initialize PhysGl.");
         }
 
-        public void Update()
+        public void Update(PhysicsSystem phys)
         {
-            LibFlPhysGl.physgl_update(_handle);
+            
+            LibFlPhysGl.physgl_update(_handle, phys.Ptr());
         }
 
         public void Resize(double aspectRatio)

@@ -14,9 +14,9 @@ extern "C" {
 #define FLPHYS_EXPORT
 #endif
 
-FLPHYS_EXPORT struct physgl *physgl_create(struct phys *phys);
+FLPHYS_EXPORT struct physgl *physgl_create(void);
 
-FLPHYS_EXPORT void physgl_update(struct physgl *phgl);
+FLPHYS_EXPORT void physgl_update(struct physgl *phgl, struct phys *phys);
 
 FLPHYS_EXPORT void physgl_on_resize(struct physgl *phgl, double aspect_ratio);
 

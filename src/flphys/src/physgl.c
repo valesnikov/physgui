@@ -95,7 +95,6 @@ struct physgl {
     } locs;
 
     atomic_flag phys_outdated;
-    struct phys *phys;
 };
 
 static void setup_buffers(struct physgl *phgl) {
@@ -160,7 +159,7 @@ static int physgl_init(struct physgl *phgl) {
     return 0;
 }
 
-struct physgl *physgl_create(struct phys *phys) {
+struct physgl *physgl_create(void) {
     struct physgl *phgl = calloc(1, sizeof(*phgl));
     if (!phgl)
         return NULL;
@@ -169,30 +168,26 @@ struct physgl *physgl_create(struct phys *phys) {
         free(phgl);
         return NULL;
     }
-    phgl->phys = phys;
     return phgl;
 }
 
-void physgl_update(struct physgl *phgl) {
-    if (phgl->phys) {
-        phgl->count = phgl->phys->objects_num;
+void physgl_update(struct physgl *phgl, struct phys *phys) {
+    phgl->count = phys->objects_num;
+    phgl->pos.data = realloc(phgl->pos.data, sizeof(phgl->pos.data[0]) * phgl->count);
+    phgl->radii.data = realloc(phgl->radii.data, sizeof(phgl->radii.data[0]) * phgl->count);
+    phgl->colors.data = realloc(phgl->colors.data, sizeof(phgl->colors.data[0]) * phgl->count);
 
-        phgl->pos.data = realloc(phgl->pos.data, sizeof(phgl->pos.data[0]) * phgl->count);
-        phgl->radii.data = realloc(phgl->radii.data, sizeof(phgl->radii.data[0]) * phgl->count);
-        phgl->colors.data = realloc(phgl->colors.data, sizeof(phgl->colors.data[0]) * phgl->count);
-
-        for (int i = 0; i < phgl->phys->objects_num; i++) {
-            struct pobj *obj = &phgl->phys->objects[i];
-            phgl->pos.data[i][0] = obj->pos.x;
-            phgl->pos.data[i][1] = obj->pos.y;
-            phgl->radii.data[i] = obj->radius;
-            phgl->colors.data[i][0] = obj->color[0] / 255.f;
-            phgl->colors.data[i][1] = obj->color[1] / 255.f;
-            phgl->colors.data[i][2] = obj->color[2] / 255.f;
-        }
-
-        atomic_flag_test_and_set(&phgl->phys_outdated);
+    for (int i = 0; i < phys->objects_num; i++) {
+        struct pobj *obj = &phys->objects[i];
+        phgl->pos.data[i][0] = obj->pos.x;
+        phgl->pos.data[i][1] = obj->pos.y;
+        phgl->radii.data[i] = obj->radius;
+        phgl->colors.data[i][0] = obj->color[0] / 255.f;
+        phgl->colors.data[i][1] = obj->color[1] / 255.f;
+        phgl->colors.data[i][2] = obj->color[2] / 255.f;
     }
+
+    atomic_flag_test_and_set(&phgl->phys_outdated);
 }
 
 void physgl_render(struct physgl *phgl, double center_x, double center_y, double scale, double aspect) {
