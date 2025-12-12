@@ -17,9 +17,6 @@ namespace PhysGui
         public static partial void physgl_update(IntPtr phgl, IntPtr phys);
 
         [LibraryImport(LibraryName)]
-        public static partial void physgl_on_resize(IntPtr phgl, double aspect_ratio);
-
-        [LibraryImport(LibraryName)]
         public static partial void physgl_render(IntPtr phgl, double center_x, double center_y, double scale, double aspect);
 
         [LibraryImport(LibraryName)]
@@ -46,11 +43,6 @@ namespace PhysGui
         {
             
             LibFlPhysGl.physgl_update(_handle, phys.Ptr());
-        }
-
-        public void Resize(double aspectRatio)
-        {
-            LibFlPhysGl.physgl_on_resize(_handle, aspectRatio);
         }
 
         public void Render(double centerX, double centerY, double scale, double aspect)

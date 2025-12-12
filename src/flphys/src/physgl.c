@@ -4,70 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "commongl.h"
 #include "types.h"
 
 // from generated
 extern const unsigned char physgl_vertex_shader_src[];
 extern const unsigned char physgl_fragment_shader_src[];
 
-static GLuint compile_shader(GLenum type, const char *source) {
-    GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
-    GLint status;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE) {
-        char log[1024];
-        glGetShaderInfoLog(shader, 1024, NULL, log);
-        fprintf(stderr, "Shader compile error:\n%s\n", log);
-        return 0;
-    }
-    return shader;
-}
-
-static GLuint link_program(const char *vertex_shader_src, const char *fragment_shader_src) {
-    GLuint vertex_shader = compile_shader(GL_VERTEX_SHADER, vertex_shader_src);
-    if (vertex_shader == 0) {
-        return 0;
-    }
-    GLuint fragment_shader = compile_shader(GL_FRAGMENT_SHADER, fragment_shader_src);
-    if (fragment_shader == 0) {
-        glDeleteShader(vertex_shader);
-        return 0;
-    }
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
-    GLint status;
-    glGetProgramiv(program, GL_LINK_STATUS, &status);
-    if (status != GL_TRUE) {
-        char log[1024];
-        glGetProgramInfoLog(program, 1024, NULL, log);
-        fprintf(stderr, "Program link error:\n%s\n", log);
-        glDeleteProgram(program);
-        glDeleteShader(vertex_shader);
-        glDeleteShader(fragment_shader);
-        return 0;
-    }
-    glDetachShader(program, vertex_shader);
-    glDetachShader(program, fragment_shader);
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-    return program;
-}
-
-static void check_gl_error(const char *tag) {
-    GLenum err;
-    while ((err = glGetError()) != GL_NO_ERROR) {
-        fprintf(stderr, "[GL ERROR] %s: 0x%x\n", tag, err);
-    }
-}
-
 struct physgl {
     GLuint vao;
-    GLuint shader_program;
+    GLuint program;
 
     struct {
         GLuint vbo;
@@ -93,6 +39,12 @@ struct physgl {
         GLuint scale;
         GLuint aspect;
     } locs;
+
+    struct {
+        GLuint vao;
+        GLuint shader_program;
+        GLuint count;
+    } background;
 
     atomic_flag phys_outdated;
 };
@@ -144,15 +96,15 @@ static int physgl_init(struct physgl *phgl) {
 
     setup_buffers(phgl);
 
-    phgl->shader_program =
+    phgl->program =
         link_program((const char *)physgl_vertex_shader_src, (const char *)physgl_fragment_shader_src);
-    if (!phgl->shader_program) {
+    if (!phgl->program) {
         return -1;
     }
 
-    phgl->locs.aspect = glGetUniformLocation(phgl->shader_program, "aspect");
-    phgl->locs.center = glGetUniformLocation(phgl->shader_program, "center");
-    phgl->locs.scale = glGetUniformLocation(phgl->shader_program, "scale");
+    phgl->locs.aspect = glGetUniformLocation(phgl->program, "aspect");
+    phgl->locs.center = glGetUniformLocation(phgl->program, "center");
+    phgl->locs.scale = glGetUniformLocation(phgl->program, "scale");
 
     phgl->count = 0;
     atomic_flag_clear(&phgl->phys_outdated);
@@ -220,16 +172,20 @@ void physgl_render(struct physgl *phgl, double center_x, double center_y, double
         atomic_flag_clear(&phgl->phys_outdated);
     }
 
-    glClearColor(9.019607843137255e-2, 9.019607843137255e-2, 9.019607843137255e-2, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(phgl->shader_program);
+    glUseProgram(phgl->program);
 
     glUniform2f(phgl->locs.center, center_x, center_y);
     glUniform1f(phgl->locs.scale, scale);
     glUniform1f(phgl->locs.aspect, aspect);
 
     glDrawElementsInstanced(GL_TRIANGLES, 3 * 2, GL_UNSIGNED_INT, 0, phgl->count);
-    check_gl_error("physgl_preview_render");
+    check_gl_error("physgl_render");
+
+    if (phgl->background.vao != 0 && phgl->background.shader_program != 0) {
+        glBindVertexArray(phgl->background.vao);
+        glUseProgram(phgl->background.shader_program);
+        glDrawArrays(GL_TRIANGLES, 0, phgl->background.count);
+    }
 }
 
 void physgl_destroy(struct physgl *phgl) {
@@ -251,8 +207,8 @@ void physgl_destroy(struct physgl *phgl) {
     if (phgl->radii.vbo) {
         glDeleteBuffers(1, &phgl->radii.vbo);
     }
-    if (phgl->shader_program) {
-        glDeleteProgram(phgl->shader_program);
+    if (phgl->program) {
+        glDeleteProgram(phgl->program);
     }
     free(phgl->pos.data);
     free(phgl->radii.data);

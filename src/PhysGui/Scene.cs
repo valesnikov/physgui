@@ -29,6 +29,8 @@ namespace PhysGui
             glArea.ScrollEvent += OnMouseScroll;
         }
 
+        public Control Control => control;
+
         public void AddDrawable(IDrawable obj)
         {
             if (obj == null) return;

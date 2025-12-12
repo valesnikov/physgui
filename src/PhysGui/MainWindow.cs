@@ -20,11 +20,12 @@ namespace PhysGui
         private double speed = 1;
         private volatile bool restartRequired = false;
         private ManualResetEventSlim started = new ManualResetEventSlim(false);
-
-        static AutoResetEvent waitConfigSelect = new AutoResetEvent(false);
-
+        private AutoResetEvent waitConfigSelect = new AutoResetEvent(false);
 
         private PhysicsConfigParser? config = null;
+        private string? configPath = null;
+
+        private BackGlWrapper back = new();
 
         public MainWindow() : this(new Builder("MainWindow.glade")) { }
 
@@ -50,9 +51,11 @@ namespace PhysGui
 
             scene = new Scene(glArea!);
 
-
             var physgl = new PhysGl();
+
+            scene.AddDrawable(back);
             scene.AddDrawable(physgl);
+
 
             startButton.Clicked += (sender, args) =>
             {
@@ -66,19 +69,33 @@ namespace PhysGui
 
             restartButton.Clicked += (sender, args) =>
             {
+                speedScale.Value = 0.5;
                 restartRequired = true;
                 started.Set();
             };
 
-            openButton.Clicked += fileChoose;
+            openButton.Clicked += FileChoose;
 
-            speedScale.Adjustment.ValueChanged += (sender, args) =>
+            speedScale.ValueChanged += (sender, args) =>
             {
                 var min = 0.1;
                 var max = 10;
                 double value = min * Math.Pow(max / min, speedScale.Value);
-                speedLabel.Text = value.ToString("F2");
+
                 Interlocked.Exchange(ref speed, value);
+
+                if (value >= 10)
+                {
+                    speedLabel.Text = value.ToString("F1");
+                }
+                else if (value >= 1)
+                {
+                    speedLabel.Text = value.ToString("F2");
+                }
+                else
+                {
+                    speedLabel.Text = value.ToString("F3").TrimStart('0');
+                }
             };
 
             scene.OnRealized += () =>
@@ -108,9 +125,12 @@ namespace PhysGui
                     {
                         waitConfigSelect.WaitOne();
                     }
+                    
                     restartRequired = false;
                     phys?.Dispose();
                     phys = config.createPhysicsSystem();
+                    back.set(config.createBack());
+                    scene.Control.Set(config.getCameraPosition());
                     started.Reset();
                 }
 
@@ -134,7 +154,7 @@ namespace PhysGui
 
         }
 
-        private void fileChoose(object? sender, EventArgs args)
+        private void FileChoose(object? sender, EventArgs args)
         {
             FileChooserDialog dialog = new FileChooserDialog(
                 "Select YAML file",
@@ -193,17 +213,9 @@ namespace PhysGui
                 ShowErrorDialog($"I/O error:\n{ex.Message}");
                 config = old;
             }
-            catch (FormatException ex)
-            {
-                ShowErrorDialog($"Configuration format error:\n{ex.Message}");
-                config = old;
-            }
-            catch (InvalidDataException ex)
-            {
-                ShowErrorDialog($"Configuration format error:\n{ex.Message}");
-                config = old;
-            }
-            catch (YamlDotNet.Core.YamlException ex)
+            catch (Exception ex) when (ex is FormatException
+                                       || ex is InvalidDataException
+                                       || ex is YamlDotNet.Core.YamlException)
             {
                 ShowErrorDialog($"Configuration format error:\n{ex.Message}");
                 config = old;

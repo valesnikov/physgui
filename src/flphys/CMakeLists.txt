@@ -14,8 +14,10 @@ project(
 )
 
 include(embed/register_embedded_file.cmake)
-register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/vertexShader.vert" physgl_vertex_shader_src)
-register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/fragmentShader.frag" physgl_fragment_shader_src)
+register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/balls.vert" physgl_vertex_shader_src)
+register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/balls.frag" physgl_fragment_shader_src)
+register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/static.vert" backgl_vertex_shader_src)
+register_embedded_file("${CMAKE_CURRENT_SOURCE_DIR}/shaders/static.frag" backgl_fragment_shader_src)
 add_subdirectory(embed)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED)
@@ -25,8 +27,10 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 )
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    src/physgl.c
     src/phys.c
+    src/commongl.c
+    src/physgl.c
+    src/backgl.c
 )
 
 find_package(PkgConfig REQUIRED)

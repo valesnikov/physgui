@@ -25,6 +25,13 @@ namespace PhysGui
         public double Scale => scale;
         public (double x, double y) Center => center;
 
+
+        public void Set(((double x, double y) center, double scale) pos)
+        {
+            center = pos.center;
+            scale = pos.scale;
+        }
+
         public void OnResize(int width, int height)
         {
             this.width = width;

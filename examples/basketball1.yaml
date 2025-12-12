@@ -1,0 +1,17 @@
+phys:
+  gravity: true
+  objs:
+    # ground
+    - pos: [0, 0]
+      mass: 1e10
+      radius: 0.2
+      color: '#248B24'
+      bounce: 1
+    # ball
+    - pos: [0, 0.7]
+      mov: [0.5, 0]
+      mass: 0.5
+      radius: 0.05
+      color: '#AB6533'
+      bounce: 1
+

@@ -2,15 +2,30 @@ phys:
   gravity: true
   objs:
     # ground
-    - pos: [0, -1000.5]
-      mass: 1e17
-      radius: 1000
-      color: '#248B24'
-      bounce: 0.9
+    - pos: [0, -100.5]
+      mass: 1e15
+      radius: 100
+      color: '#147B14'
+      bounce: 0.95
     # ball
     - pos: [0, 0.5]
       mov: [0, 0]
       mass: 0.5
       radius: 0.11
-      color: '#AB6533'
+      color: '#9B6523'
       bounce: 1
+
+cam:
+  scale: 1
+  center: [0, 0]
+
+bg:
+  color: "#4EB5F3"
+  polys:
+  - verts: [[0,0], [1,0], [1,1], [0,1]]
+    color: "#ffffff"
+  lines:
+  - start: [0,0]
+    end: [20,1]
+    color: "#ff0000"
+    thick: 0.01

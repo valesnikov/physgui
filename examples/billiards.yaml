@@ -1,3 +1,7 @@
+cam:
+  scale: 0.5
+  center: [-0.5, 0]
+
 phys:
   objs:
     # cue ball
@@ -7,7 +11,6 @@ phys:
       radius: 0.1
       color: '#FFFFFF'
       bounce: 0.8
-
     # rack – triangle of 15 balls
 
     # row 1
